@@ -205,9 +205,9 @@ C<traverse_sequences>.
 
 =head2 C<LCS>
 
-Given references to two lists of items, C<LCS> returns a list
-containing their longest common subsequence.  In scalar context, it
-returns a reference to such a list. 
+Given references to two lists of items, LCS returns an array containing their
+longest common subsequence.  In scalar context, it returns a reference to
+such a list.
 
   @lcs    = LCS( \@seq1, \@seq2 );
   $lcsref = LCS( \@seq1, \@seq2 );
