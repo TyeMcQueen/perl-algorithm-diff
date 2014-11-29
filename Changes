@@ -1,0 +1,12 @@
+Revision history for Perl extension Algorithm::Diff.
+
+0.59 Last version maintained by Mark-Jason Dominus
+
+1.01 First version by Ned Konz.
+
+Total re-write to cure problems with memory usage and speed.
+Now takes only a few seconds and less than three megabytes
+to compare two 4000-line files.
+
+Changed optional callback function reference from being equality
+function to being key (hash) generation function.
