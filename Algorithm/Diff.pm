@@ -1,7 +1,7 @@
 # -*- perl -*-
 #
 # Longest Common Subsequence algorithm
-# Copyright 1998 M-J. Dominus. (mjd-perl-lcs@plover.com)
+# Copyright 1998 M-J. Dominus. (mjd-perl-diff@plover.com)
 #
 # This program is free software; you can redistribute it and/or modify it
 # under the same terms as Perl itself.
@@ -18,12 +18,12 @@
 # $Id: LCS.pm,v 1.7 1998/08/13 00:39:53 mjd Exp mjd $;
 #
 
-package Algorithm::LCS;
+package Algorithm::Diff;
 
 $VERSION = '0.54';
 
 
-%Algorithm::LCS::EXPORT_OK = (LCS => 1,
+%Algorithm::Diff::EXPORT_OK = (LCS => 1,
 			     diff => 1,
 			     traverse_sequences => 1,
 			     );
@@ -154,11 +154,11 @@ sub usage {
 
 =head1 NAME
 
-Algorithm::LCS - Solve longest common subsequence problem
+Algorithm::Diff - Solve longest common subsequence problem
 
 =head1 SYNOPSIS
 
-  use Algorithm::LCS qw(diff LCS trverse_sequences);
+  use Algorithm::Diff qw(diff LCS trverse_sequences);
 
   @lcs = LCS(\@seq1, \@seq2, $comparison_function);
 
@@ -336,12 +336,12 @@ functions are implemented on top of C<traverse_sequences>.
 =head1 MAILING LIST
 
 To join a low-volume mailing list for announcements related to diff
-and Algorithm::LCS, send an empty mail message to
+and Algorithm::Diff, send an empty mail message to
 mjd-perl-diff-request@plover.com.
 
 =head1 AUTHOR
 
-Mark-Jason Dominus, mjd-perl-lcs@plover.com.  
+Mark-Jason Dominus, mjd-perl-diff@plover.com.  
 
 Visit my diff/LCS web page at http://www.plover.com/~mjd/perl/diff/.
 

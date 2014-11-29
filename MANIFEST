@@ -1,6 +1,6 @@
 MANIFEST
 Makefile.PL
-Algorithm/LCS.pm
+Algorithm/Diff.pm
 diff.pl
 cdiff.pl
 README
