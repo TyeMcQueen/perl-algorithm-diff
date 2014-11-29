@@ -73,83 +73,313 @@ print "$char1 $file1\t", scalar localtime($st->mtime), "\n";
 $st = stat($file2);
 print "$char2 $file2\t", scalar localtime($st->mtime), "\n";
 
-my ($lines_subtracted, $lines_added) = (0, 0);
+my ($hunk,$oldhunk);
+# Loop over hunks. If a hunk overlaps with the last hunk, join them.
+# Otherwise, print out the old one.
 foreach my $piece (@$diffs) {
-  print "***************\n";
-  do_a_chunk ($piece, \@f1, \@f2, 2);
-}
-exit 1;
+    $hunk = new Hunk ($piece, $Context_Lines);
+    next unless $oldhunk;
 
-sub do_a_chunk
-{
-  my ($chunk, $f1, $f2, $context_lines) = @_;
-  my (@file1_ops, @file2_ops);
-  my (@file1_nos, @file2_nos);
-  my $do_op = '!';
-
-  foreach my $line (@$chunk) {
-    my ($sign, $line_no, $text) = @$line;
-    if ($sign eq '-') {
-      $lines_subtracted++;
-      push (@file1_ops, $text);
-      push (@file1_nos, $line_no);
-    } elsif ($sign eq '+') {
-      push (@file2_ops, $text);
-      push (@file2_nos, $line_no);
-      $lines_added++;
+    if ($hunk->does_overlap($oldhunk)) {
+	$hunk->prepend_hunk($oldhunk);
     } else {
-      die "unknown sign: $sign, stopped at ";
+	$oldhunk->output_diff(\@f1, \@f2);
     }
-  }
-  my $offset = $lines_added - $lines_subtracted;
-  unless (@file1_ops) {
-  	my $diff_offset = $file2_nos[-1] - $offset;
-	$diff_offset = -1 if ($diff_offset < -1);
-	push(@file1_nos, $diff_offset);
-	$do_op = '+';
-  }
-  unless (@file2_ops) {
-  	my $diff_offset = $file1_nos[-1] + $offset;
-	$diff_offset = -1 if ($diff_offset < -1);
-	push(@file2_nos, $diff_offset);
-	$do_op = '-';
-  }
-  do_part([], [], $do_op, '-', \@file1_ops, \@file1_nos);
-  do_part([], [], $do_op, '+', \@file2_ops, \@file2_nos);
+
+} continue {
+    $oldhunk = $hunk;
 }
 
-sub do_part
-{
-  my ($context_before, $context_after,
-    $do_op, $sign, $file_ops, $file_nos) = @_;
-  my $start_context = $file_nos->[0];
-  my $end_context = $file_nos->[-1];
-  my (@context_before, @context_after);
-
-  print STDOUT ($sign eq '-') ? '***' : '---';
-  print ' ';
-  if ($start_context == $end_context) {
-    print $start_context + 1;
-  } else {
-    print $start_context + 1, ',', $end_context + 1;
-  }
-  print ' ';
-  print STDOUT ($sign eq '-') ? '***' : '---';
-  print "\n";
-  for (@$context_before) {
-	  print "  ", $_, "\n";
-  }
-  for (@$file_ops) {
-	  print "$do_op ", $_, "\n";
-  }
-  for (@$context_after) {
-	  print "  ", $_, "\n";
-  }
-}
+# print the last hunk
+$oldhunk->output_diff(\@f1, \@f2);
+exit 1;
+# END MAIN PROGRAM
 
 sub bag {
   my $msg = shift;
   $msg .= "\n";
   warn $msg;
   exit 2;
+}
+
+# Package Hunk. A Hunk is a group of Blocks which overlap because of the
+# context surrounding each block. (So if we're not using context, every
+# hunk will contain one block.)
+{
+package Hunk;
+
+sub new {
+# Arg1 is output from &LCS::diff (which corresponds to one Block)
+# Arg2 is the number of items (lines, e.g.,) of context around each block
+#
+# This subroutine changes $File_Length_Difference
+#
+# Fields in a Hunk:
+# blocks      - a list of Block objects
+# start       - index in file 1 where first block of the hunk starts
+# end         - index in file 1 where last block of the hunk ends
+#
+# Variables:
+# before_diff - how much longer file 2 is than file 1 due to all hunks
+#               until but NOT including this one
+# after_diff  - difference due to all hunks including this one
+    my ($class, $piece, $context_items) = @_;
+
+    my $block = new Block ($piece); # this modifies $FLD!
+
+    my $before_diff = $File_Length_Difference; # BEFORE this hunk
+    my $after_diff = $before_diff + $block->{"length_diff"};
+    $File_Length_Difference += $block->{"length_diff"};
+
+    # @remove_array and @insert_array hold the items to insert and remove
+    # Save the start & beginning of each array. If the array doesn't exist
+    # though (e.g., we're only adding items in this block), then figure
+    # out the line number based on the line number of the other file and
+    # the current difference in file lenghts
+    my @remove_array = $block->remove;
+    my @insert_array = $block->insert;
+    my ($a1, $a2, $b1, $b2, $start1, $start2, $end1, $end2);
+    $a1 = @remove_array ? $remove_array[0 ]->{"item_no"} : -1;
+    $a2 = @remove_array ? $remove_array[-1]->{"item_no"} : -1;
+    $b1 = @insert_array ? $insert_array[0 ]->{"item_no"} : -1;
+    $b2 = @insert_array ? $insert_array[-1]->{"item_no"} : -1;
+
+    $start1 = $a1 == -1 ? $b1 - $before_diff : $a1;
+    $end1   = $a2 == -1 ? $b2 - $after_diff  : $a2;
+    $start2 = $b1 == -1 ? $a1 + $before_diff : $b1;
+    $end2   = $b2 == -1 ? $a2 + $after_diff  : $b2;
+
+    # At first, a hunk will have just one Block in it
+    my $hunk = {
+	    "start1" => $start1,
+	    "start2" => $start2,
+	    "end1" => $end1,
+	    "end2" => $end2,
+	    "blocks" => [$block],
+              };
+    bless $hunk, $class;
+
+    $hunk->flag_context($context_items);
+
+    return $hunk;
+}
+
+# Change the "start" and "end" fields to note that context should be added
+# to this hunk
+sub flag_context {
+    my ($hunk, $context_items) = @_;
+    return unless $context_items; # no context
+
+    # add context before
+    my $start1 = $hunk->{"start1"};
+    my $num_added = $context_items > $start1 ? $start1 : $context_items;
+    $hunk->{"start1"} -= $num_added;
+    $hunk->{"start2"} -= $num_added;
+
+    # context after
+    my $end1 = $hunk->{"end1"};
+    $num_added = ($end1+$context_items > $#f1) ?
+                  $#f1 - $end1 :
+                  $context_items;
+    $hunk->{"end1"} += $num_added;
+    $hunk->{"end2"} += $num_added;
+}
+
+# Is there an overlap between hunk arg0 and old hunk arg1?
+# Note: if end of old hunk is one less than beginning of second, they overlap
+sub does_overlap {
+    my ($hunk, $oldhunk) = @_;
+    return "" unless $oldhunk; # first time through, $oldhunk is empty
+
+    # Do I actually need to test both?
+    return ($hunk->{"start1"} - $oldhunk->{"end1"} <= 1 ||
+            $hunk->{"start2"} - $oldhunk->{"end2"} <= 1);
+}
+
+# Prepend hunk arg1 to hunk arg0
+# Note that arg1 isn't updated! Only arg0 is.
+sub prepend_hunk {
+    my ($hunk, $oldhunk) = @_;
+
+    $hunk->{"start1"} = $oldhunk->{"start1"};
+    $hunk->{"start2"} = $oldhunk->{"start2"};
+
+    unshift (@{$hunk->{"blocks"}}, @{$oldhunk->{"blocks"}});
+}
+
+
+# DIFF OUTPUT ROUTINES. THESE ROUTINES CONTAIN DIFF FORMATTING INFO...
+sub output_diff {
+    if    (defined $main::opt_u) {&output_unified_diff(@_)}
+    elsif (defined $main::opt_c) {&output_context_diff(@_)}
+    else {die "unknown diff"}
+}
+
+sub output_unified_diff {
+    my ($hunk, $fileref1, $fileref2) = @_;
+    my @blocklist;
+
+    # Calculate item number range.
+    my $range1 = $hunk->unified_range(1);
+    my $range2 = $hunk->unified_range(2);
+    print "@@ -$range1 +$range2 @@\n";
+
+    # Outlist starts containing the hunk of file 1.
+    # Removing an item just means putting a '-' in front of it.
+    # Inserting an item requires getting it from file2 and splicing it in.
+    #    We splice in $num_added items. Remove blocks use $num_added because
+    # splicing changed the length of outlist.
+    #    We remove $num_removed items. Insert blocks use $num_removed because
+    # their item numbers---corresponding to positions in file *2*--- don't take
+    # removed items into account.
+    my $low = $hunk->{"start1"};
+    my $hi = $hunk->{"end1"};
+    my ($num_added, $num_removed) = (0,0);
+    my @outlist = @$fileref1[$low..$hi];
+    map {s/^/ /} @outlist; # assume it's just context
+
+    foreach my $block (@{$hunk->{"blocks"}}) {
+	foreach my $item ($block->remove) {
+	    my $op = $item->{"sign"}; # -
+	    my $offset = $item->{"item_no"} - $low + $num_added;
+	    $outlist[$offset] =~ s/^ /$op/;
+	    $num_removed++;
+	}
+	foreach my $item ($block->insert) {
+	    my $op = $item->{"sign"}; # +
+	    my $i = $item->{"item_no"};
+	    my $offset = $i - $hunk->{"start2"} + $num_removed;
+	    splice(@outlist,$offset,0,"$op$$fileref2[$i]");
+	    $num_added++;
+	}
+    }
+
+    map {s/$/\n/} @outlist; # add \n's
+    print @outlist;
+
+}
+
+sub output_context_diff {
+    my ($hunk, $fileref1, $fileref2) = @_;
+    my @blocklist;
+
+    print "***************\n";
+    # Calculate item number range.
+    my $range1 = $hunk->context_range(1);
+    my $range2 = $hunk->context_range(2);
+
+    # Print out file 1 part for each block in context diff format if there are
+    # any blocks that remove items
+    print "*** $range1 ****\n";
+    my $low = $hunk->{"start1"};
+    my $hi  = $hunk->{"end1"};
+    if (@blocklist = grep {$_->remove} @{$hunk->{"blocks"}}) {
+	my @outlist = @$fileref1[$low..$hi];
+	map {s/^/  /} @outlist; # assume it's just context
+	foreach my $block (@blocklist) {
+	    my $op = $block->op; # - or !
+	    foreach my $item ($block->remove) {
+		$outlist[$item->{"item_no"} - $low] =~ s/^ /$op/;
+	    }
+	}
+	map {s/$/\n/} @outlist; # add \n's
+	print @outlist;
+    }
+
+    print "--- $range2 ----\n";
+    $low = $hunk->{"start2"};
+    $hi  = $hunk->{"end2"};
+    if (@blocklist = grep {$_->insert} @{$hunk->{"blocks"}}) {
+	my @outlist = @$fileref2[$low..$hi];
+	map {s/^/  /} @outlist; # assume it's just context
+	foreach my $block (@blocklist) {
+	    my $op = $block->op; # + or !
+	    foreach my $item ($block->insert) {
+		$outlist[$item->{"item_no"} - $low] =~ s/^ /$op/;
+	    }
+	}
+	map {s/$/\n/} @outlist; # add \n's
+	print @outlist;
+    }
+}
+
+sub context_range {
+# Generate a range of item numbers to print. Only print 1 number if the range
+# has only one item in it. Otherwise, it's 'start,end'
+    my ($hunk, $flag) = @_;
+    my ($start, $end) = ($hunk->{"start$flag"},$hunk->{"end$flag"});
+    $start++; $end++;  # index from 1, not zero
+    my $range = ($start < $end) ? "$start,$end" : $end;
+    return $range;
+}
+
+sub unified_range {
+# Generate a range of item numbers to print for unified diff
+# Print number where block starts, followed by number of lines in the block
+# (don't print number of lines if it's 1)
+    my ($hunk, $flag) = @_;
+    my ($start, $end) = ($hunk->{"start$flag"},$hunk->{"end$flag"});
+    $start++; $end++;  # index from 1, not zero
+    my $length = $end - $start + 1;
+    my $first = $length < 2 ? $end : $start; # strange, but correct...
+    my $range = $length== 1 ? $first : "$first,$length";
+    return $range;
+}
+} # end Package Hunk
+
+# Package Block. A block is an operation removing, adding, or changing
+# a group of items. Basically, this is just a list of changes, where each
+# change adds or deletes a single item.
+# (Change could be a separate class, but it didn't seem worth it)
+{
+package Block;
+sub new {
+# Input is a chunk from &Algorithm::LCS::diff
+# Fields in a block:
+# length_diff - how much longer file 2 is than file 1 due to this block
+# Each change has:
+# sign        - '+' for insert, '-' for remove
+# item_no     - number of the item in the file (e.g., line number)
+# We don't bother storing the text of the item
+#
+    my ($class,$chunk) = @_;
+    my @changes = ();
+
+# This just turns each change into a hash.
+    foreach my $item (@$chunk) {
+	my ($sign, $item_no, $text) = @$item;
+	my $hashref = {"sign" => $sign, "item_no" => $item_no};
+	push @changes, $hashref;
+    }
+
+    my $block = { "changes" => \@changes };
+    bless $block, $class;
+
+    $block->{"length_diff"} = $block->insert - $block->remove;
+    return $block;
+}
+
+
+# LOW LEVEL FUNCTIONS
+sub op {
+# what kind of block is this?
+    my $block = shift;
+    my $insert = $block->insert;
+    my $remove = $block->remove;
+
+    $remove && $insert and return '!';
+    $remove and return '-';
+    $insert and return '+';
+    warn "unknown block type";
+    return '^'; # context block
+}
+
+# Returns a list of the changes in this block that remove items
+# (or the number of removals if called in scalar context)
+sub remove { return grep {$_->{"sign"} eq '-'} @{shift->{"changes"}}; }
+
+# Returns a list of the changes in this block that insert items
+sub insert { return grep {$_->{"sign"} eq '+'} @{shift->{"changes"}}; }
+
+} # end of package Block
 
