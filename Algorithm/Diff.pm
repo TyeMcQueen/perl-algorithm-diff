@@ -162,7 +162,7 @@ Algorithm::Diff - Compute `intelligent' differences between two files / lists
 
 =head1 SYNOPSIS
 
-  use Algorithm::Diff qw(diff LCS trverse_sequences);
+  use Algorithm::Diff qw(diff LCS traverse_sequences);
 
   @lcs = LCS(\@seq1, \@seq2, $comparison_function);
 
@@ -199,7 +199,12 @@ I<S> is
 
         a b c d f g j z
 
-From there it's only a small step to get diff-like output:
+(You can get it by deleting the C<h> and C<q> from the first sequence,
+or by deleting the C<e>, C<i>, and C<k r x y> from the second
+sequence.)
+
+From the longest common subsequence it's only a small step to get
+diff-like output:
 
         e   h i   k   q r x y 
         +   - +   +   - + + +
@@ -306,7 +311,7 @@ sequence A, and arrow B points to an element of the sequence B.
 Initially, the arrows point to the first elements of the respective
 sequences.  C<traverse_sequences> will advance the arrows through the
 sequences one element at a time, calling an appropriate user-specified
-callback function before each advance.  It willadvance the arrows in
+callback function before each advance.  It will advance the arrows in
 such a way that if there are equal elements C<$A[$i]> and C<$B[$j]>
 which are equal and which are part of the LCS, there will be some
 moment during the execution of C<traverse_sequences> when arrow A is
@@ -350,7 +355,7 @@ specified, it will be called with pairs of elements and is expected to
 return true if the elements are considered equal.  If not specified,
 or if C<undef>,  it defaults to C<eq>.
 
-Any additional arguments to C<travese_sequences> are passed to the
+Any additional arguments to C<traverse_sequences> are passed to the
 callback functions.
 
 For examples of how to use this, see the code.  the C<LCS> and C<diff>
@@ -366,7 +371,6 @@ mjd-perl-diff-request@plover.com.
 
 Mark-Jason Dominus, mjd-perl-diff@plover.com.  
 
-Visit my diff/LCS web page at http://www.plover.com/~mjd/perl/diff/.
-
-
+For news and updates, visit my diff/LCS web page at
+http://www.plover.com/~mjd/perl/diff/.
 
