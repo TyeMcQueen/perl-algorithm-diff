@@ -124,7 +124,7 @@ sub traverse_sequences {
 
 sub LCS {
   my $lcs = [];
-  my ($a, $b);
+  my ($a, $b) = @_;
   my $functions = { MATCH => sub {push @$lcs, $a->[$_[0]]} };
   
   traverse_sequences($functions, @_);
