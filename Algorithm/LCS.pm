@@ -15,7 +15,7 @@
 # this matrix and invokes callback functions on each traversed matrix
 # element.
 #
-# $Id: LCS.pm,v 1.7 1998/08/13 00:39:53 mjd Exp $;
+# $Id: LCS.pm,v 1.7 1998/08/13 00:39:53 mjd Exp mjd $;
 #
 
 package Algorithm::LCS;
