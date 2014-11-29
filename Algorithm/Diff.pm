@@ -160,6 +160,10 @@ sub usage {
 
 Algorithm::Diff - Compute `intelligent' differences between two files / lists
 
+=head1 VERSION
+
+This is C<Algorithm::Diff> version B<0.58>
+
 =head1 SYNOPSIS
 
   use Algorithm::Diff qw(diff LCS traverse_sequences);
