@@ -1,12 +1,12 @@
 
 This package contains a few parts:
 
-Algorithm/LCS.pm
+Algorithm::Diff
 	The module that actually finds the differences.  diff.pl and
 	cdiff.pl) just take the results from Algorithm::LCS and format
 	them nicely.	
 
-	A::L is suitable for many other uses.  For example, you could
+	A::D is suitable for many other uses.  For example, you could
 	use it for finding the smallest set of differences between two
 	strings, or for computing the most efficient way to update the
 	screen if you were replacing `curses'.
@@ -27,7 +27,7 @@ OTHER RESOURCES
 Visit my diff/LCS web page at http://www.plover.com/~mjd/perl/diff/.
 
 To join a low-volume mailing list for announcements related to diff
-and Algorithm::LCS, send an empty mail message to
+and Algorithm::Diff, send an empty mail message to
 mjd-perl-diff-request@plover.com.
 
 `Longest Common Subsequences', at
