@@ -1,10 +1,25 @@
 
+
+This is a module for computing the difference between two files, two
+strings, or any other two lists of things.  It uses an  intelligent
+algorithm similar to (or identical to) the one used by the Unix `diff'
+program.   It is guaranteed to find the *smallest possible* set of
+differences.  
+
 This package contains a few parts:
 
 Algorithm::Diff
-	The module that actually finds the differences.  diff.pl and
-	cdiff.pl) just take the results from Algorithm::LCS and format
-	them nicely.	
+	Module that contains the `diff' function, which computes the
+	differences betwen two lists and returns a data structure that
+	represents these differences.  You can then use the data
+	structure to generate a formatted output in whatever format
+	you like.  The `diff' programs included in this package use
+	Algorithm::Diff::diff to find the differences, and then
+	theyjust format the output.  
+
+	Algorithm::Diff also includes some other useful functions such
+	as `LCS', which computes the longest common subsequence of two
+	lists.
 
 	A::D is suitable for many other uses.  For example, you could
 	use it for finding the smallest set of differences between two
