@@ -1,7 +1,7 @@
 # -*- perl -*-
 #
 # Longest Common Subsequence algorithm
-# Copyright 1998 M-J. Dominus. (mjd-perl-diff@plover.com)
+# Copyright 1998, 1999 M-J. Dominus. (mjd-perl-diff@plover.com)
 #
 # This program is free software; you can redistribute it and/or modify it
 # under the same terms as Perl itself.
@@ -15,7 +15,7 @@
 # this matrix and invokes callback functions on each traversed matrix
 # element.
 #
-# $Id: LCS.pm,v 1.7 1998/08/13 00:39:53 mjd Exp mjd $;
+# $Id: Diff.pm,v 1.8 1999/03/08 19:23:49 mjd Exp $;
 #
 
 package Algorithm::Diff;
