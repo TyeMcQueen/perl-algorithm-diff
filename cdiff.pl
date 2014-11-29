@@ -38,9 +38,9 @@ $st = stat($file2);
 print "$char2 $file2\t", scalar localtime($st->mtime), "\n";
 
 my ($lines_subtracted, $lines_added) = (0, 0);
-foreach my $chunk (@$diffs) {
+foreach my $piece (@$diffs) {
   print "***************\n";
-  do_a_chunk ($chunk, \@f1, \@f2, 2);
+  do_a_chunk ($piece, \@f1, \@f2, 2);
 }
 exit 1;
 
