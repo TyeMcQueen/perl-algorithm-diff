@@ -38,6 +38,10 @@ diff.pl
 	so that you can see how it works.  The output format is not
 	compatible with regular `diff'.
 
+diffnew.pl
+	Implementation of Unix `diff' in Perl with full bells and
+	whistles. By Mark-Jason, with code from cdiff.pl included.
+
 cdiff.pl
 	`diff' that generates real context diffs in either traditional
 	format or GNU unified format. Original contextless `context'
