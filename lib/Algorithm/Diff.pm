@@ -1,46 +1,11 @@
-# -*- perl -*-
-#
-# Longest Common Subsequence algorithm
-# Copyright 1998, 1999 M-J. Dominus. (mjd-perl-diff@plover.com)
-#
-# This program is free software; you can redistribute it and/or modify it
-# under the same terms as Perl itself.
-#
-
-# Algorithm: See `Longest Common Subsequences', at
-# http://www.ics.uci.edu/~eppstein/161/960229.html
-# 
-# The function `LCS_matrix' constructs the matrix described by this
-# reference; then `traverse sequences' traverses the graph implied by
-# this matrix and invokes callback functions on each traversed matrix
-# element.
-#
-# $Id: Diff.pm,v 1.8 1999/03/08 19:23:49 mjd Exp $;
-#
-
 package Algorithm::Diff;
 use strict;
-$Algorithm::Diff::VERSION = '0.58';
-
-
-%Algorithm::Diff::EXPORT_OK = (LCS => 1,
-			     diff => 1,
-			     traverse_sequences => 1,
-			     );
-
-sub import {
-  no strict;
-  my $package = shift;
-  my $caller = caller;
-  foreach $func (@_) {
-    unless ($ {$package . '::EXPORT_OK'}{$func}) {
-      require Carp;
-      Carp::croak("$package does not export function `$func'; aborting");
-    }
-    *{"$ {caller}::$func"} = \&{"$ {package}::$func"};
-  }
-  1;
-}
+use vars qw($VERSION @EXPORT_OK @ISA @EXPORT);
+require Exporter;
+@ISA = qw(Exporter);
+@EXPORT = qw();
+@EXPORT_OK = qw(LCS diff traverse_sequences);
+$VERSION = '0.58';
 
 # McIlroy-Hunt diff algorithm
 # Adapted from the Smalltalk code of Mario I. Wolczko, <mario@wolczko.com>
@@ -247,7 +212,7 @@ is C<a x b y c z>:
 
 =head1 USAGE
 
-This module exports three functions, which we'll deal with in
+This module provides three exportable functions, which we'll deal with in
 ascending order of difficulty: C<LCS>, C<diff>, and
 C<traverse_sequences>.
 
