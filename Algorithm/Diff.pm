@@ -34,8 +34,8 @@ sub import {
   my $caller = caller;
   foreach $func (@_) {
     unless ($ {$package . '::EXPORT_OK'}{$func}) {
-      use Carp;
-      croak "$package does not export function `$func'; aborting";
+      require Carp;
+      Carp::croak("$package does not export function `$func'; aborting");
     }
     *{"$ {caller}::$func"} = \&{"$ {package}::$func"};
   }
@@ -150,7 +150,8 @@ sub diff {
 }
 
 sub usage {
-  croak "Usage: LCS([...], [...]); aborting";
+  require Carp;
+  Carp::croak("Usage: LCS([...], [...]); aborting");
 }
 
 1;
