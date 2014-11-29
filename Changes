@@ -1,5 +1,9 @@
 Revision history for Perl extension Algorithm::Diff.
 
+1.11 Thu Jul 12 12:52:18 PDT 2001
+- Added A_FINISHED and B_FINISHED per docs
+- Called user callback function from keygen properly
+
 1.10 July 7 2000
 - Uploaded to CPAN
 - More optimizations
