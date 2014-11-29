@@ -20,7 +20,7 @@
 
 package Algorithm::LCS;
 
-$VERSION = '0.53';
+$VERSION = '0.54';
 
 
 %Algorithm::LCS::EXPORT_OK = (LCS => 1,
