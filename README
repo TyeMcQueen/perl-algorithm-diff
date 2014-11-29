@@ -52,9 +52,8 @@ http://www.ics.uci.edu/~eppstein/161/960229.html
 
 THANKS SECTION
 
-Thanks to Christian Murphy for writing `cdiff.pl'.  In this world
-	there are the talkers and the doers, and Christian is
-	obviously a doer.  
+Thanks to Christian Murphy for adding the first context diff format
+	suppoort to `cdiff.pl'.
 
 Thanks to Tim Bunce for his code that I haven't incorporated yet.
 
