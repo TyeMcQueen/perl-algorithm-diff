@@ -7,7 +7,7 @@
 # under the same terms as Perl itself.
 #
 
-use Algorithm::LCS qw(diff);
+use Algorithm::Diff qw(diff);
 
 bag("Usage: $0 oldfile newfile") unless @ARGV == 2;
 
