@@ -4,6 +4,15 @@ algorithm similar to (or identical to) the one used by the Unix `diff'
 program.   It is guaranteed to find the *smallest possible* set of
 differences.  
 
+It was originally written by Mark-Jason Dominus,
+mjd-perl-diff@plover.com and was re-written and is now being maintained
+by Ned Konz, perl@bike-nomad.com.
+
+Mark-Jason still maintains a mailing list.
+To join a low-volume mailing list for announcements related to diff
+and Algorithm::Diff, send an empty mail message to
+mjd-perl-diff-request@plover.com.
+
 This package contains a few parts:
 
 Algorithm::Diff
@@ -40,18 +49,19 @@ cdiff.pl
 
 OTHER RESOURCES
 
-Visit my diff/LCS web page at http://www.plover.com/~mjd/perl/diff/.
-
-To join a low-volume mailing list for announcements related to diff
-and Algorithm::Diff, send an empty mail message to
-mjd-perl-diff-request@plover.com.
-
 `Longest Common Subsequences', at
 http://www.ics.uci.edu/~eppstein/161/960229.html 
 
 
 
 THANKS SECTION
+
+Thanks to Mark-Jason Dominus for doing the original Perl version and
+maintaining it over the last couple of years. Mark-Jason has been a huge
+contributor to the Perl community and CPAN; it's because of people like
+him that Perl has become a success.
+
+(From Mark-Jason Dominus' earlier versions):
 
 Huge thanks to Amir Karger for adding full context diff supprt to
 `cdiff.pl', and then for waiting patiently for five months while I let

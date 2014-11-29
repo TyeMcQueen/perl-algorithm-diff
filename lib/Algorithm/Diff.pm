@@ -369,15 +369,12 @@ callback functions.
 For examples of how to use this, see the code.  the C<LCS> and C<diff>
 functions are implemented on top of C<traverse_sequences>.
 
-=head1 MAILING LIST
-
-To join a low-volume mailing list for announcements related to diff
-and Algorithm::Diff, send an empty mail message to
-mjd-perl-diff-request@plover.com.
-
 =head1 AUTHOR
 
-Mark-Jason Dominus, mjd-perl-diff@plover.com
+This version by Ned Konz, perl@bike-nomad.com
 
-For news and updates, visit my diff/LCS web page at
-http://www.plover.com/~mjd/perl/diff/.
+=head1 CREDITS
+
+Versions through 0.59 (and much of this documentation) were written by:
+
+Mark-Jason Dominus, mjd-perl-diff@plover.com
