@@ -137,6 +137,10 @@ Algorithm::Diff - Compute `intelligent' differences between two files / lists
 
   @lcs    = LCS( \@seq1, \@seq2, $key_generation_function );
 
+  $lcsref = LCS( \@seq1, \@seq2 );
+
+  $lcsref = LCS( \@seq1, \@seq2, $key_generation_function );
+
   @diffs = diff( \@seq1, \@seq2 );
 
   @diffs = diff( \@seq1, \@seq2, $key_generation_function );
