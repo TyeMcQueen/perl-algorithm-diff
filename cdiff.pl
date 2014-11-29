@@ -9,17 +9,49 @@
 # Altered to output in `context diff' format (but without context)
 # September 1998 Christian Murphy (cpm@muc.de)
 #
+# Command-line arguments and context lines feature added
+# September 1998 Amir D. Karger (karger@bead.aecom.yu.edu)
 use strict;
 
 use Algorithm::LCS qw(diff);
 use File::stat;
+use vars qw ($opt_C $opt_c $opt_u $opt_U);
+use Getopt::Std;
 
-bag("Usage: $0 oldfile newfile") unless @ARGV == 2;
+my $usage = << "ENDUSAGE";
+Usage: $0 [{-c | -u}] [{-C | -U} lines] oldfile newfile
+    -c will do a context diff with 3 lines of context
+    -C will do a context diff with 'lines' lines of context
+    -u will do a unified diff with 3 lines of context
+    -U will do a unified diff with 'lines' lines of context
+ENDUSAGE
 
+getopts('U:C:cu') or bag("$usage");
+bag("$usage") unless @ARGV == 2;
 my ($file1, $file2) = @ARGV;
+if (defined $opt_C || defined $opt_c) {
+    $opt_c = ""; # -c on if -C given on command line
+    $opt_u = undef;
+} elsif (defined $opt_U || defined $opt_u) {
+    $opt_u = ""; # -u on if -U given on command line
+    $opt_c = undef;
+} else {
+    $opt_c = ""; # by default, do context diff, not old diff
+}
 
 my ($char1, $char2); # string to print before file names
+my $Context_Lines; # lines of context to print
+if (defined $opt_c) {
+    $Context_Lines = defined $opt_C ? $opt_C : 3;
     $char1 = '*' x 3; $char2 = '-' x 3;
+} elsif (defined $opt_u) {
+    $Context_Lines = defined $opt_U ? $opt_U : 3;
+    $char1 = '-' x 3; $char2 = '+' x 3;
+}
+
+# After we've read up to a certain point in each file, the number of items
+# we've read from each file will differ by $FLD (could be 0)
+my $File_Length_Difference = 0;
 
 open (F1, $file1) or bag("Couldn't open $file1: $!");
 open (F2, $file2) or bag("Couldn't open $file2: $!");
