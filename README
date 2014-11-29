@@ -1,5 +1,3 @@
-
-
 This is a module for computing the difference between two files, two
 strings, or any other two lists of things.  It uses an  intelligent
 algorithm similar to (or identical to) the one used by the Unix `diff'
@@ -12,10 +10,10 @@ Algorithm::Diff
 	Module that contains the `diff' function, which computes the
 	differences betwen two lists and returns a data structure that
 	represents these differences.  You can then use the data
-	structure to generate a formatted output in whatever format
-	you like.  The `diff' programs included in this package use
-	Algorithm::Diff::diff to find the differences, and then
-	theyjust format the output.  
+	structure to generate a formatted output in whatever format you
+	like.  The `diff' programs included in this package use
+	Algorithm::Diff::diff to find the differences, and then theyjust
+	format the output.  
 
 	Algorithm::Diff also includes some other useful functions such
 	as `LCS', which computes the longest common subsequence of two
@@ -40,8 +38,6 @@ cdiff.pl
 
 	Yes, you can use this program to generate patches.
 
-
-
 OTHER RESOURCES
 
 Visit my diff/LCS web page at http://www.plover.com/~mjd/perl/diff/.
@@ -58,12 +54,12 @@ http://www.ics.uci.edu/~eppstein/161/960229.html
 THANKS SECTION
 
 Huge thanks to Amir Karger for adding full context diff supprt to
-	`cdiff.pl', and then for waiting patiently for five months
-	while I let it sit in a closet and didn't release it.  Thank
-	you thank you thank you, Amir!
+`cdiff.pl', and then for waiting patiently for five months while I let
+it sit in a closet and didn't release it.  Thank you thank you thank
+you, Amir!
 
 Thanks to Christian Murphy for adding the first context diff format
-	suppoort to `cdiff.pl'.
+suppoort to `cdiff.pl'.
 
 Thanks to Tim Bunce for his code that I haven't incorporated yet.
 

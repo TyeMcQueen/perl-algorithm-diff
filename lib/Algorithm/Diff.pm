@@ -164,16 +164,16 @@ Algorithm::Diff - Compute `intelligent' differences between two files / lists
 
   use Algorithm::Diff qw(diff LCS traverse_sequences);
 
-  @lcs = LCS(\@seq1, \@seq2, $comparison_function);
+  @lcs    = LCS( \@seq1, \@seq2, $comparison_function );
 
-  @diffs = diff(\@seq1, \@seq2, $comparison_function);
+  @diffs = diff( \@seq1, \@seq2, $comparison_function );
   
-  traverse_sequences(\@seq1, \@seq2,
+  traverse_sequences( \@seq1, \@seq2,
                      { MATCH => $callback,
                        DISCARD_A => $callback,
                        DISCARD_B => $callback,
                      },
-                     $comparison_function);
+                     $comparison_function );
 
 =head1 INTRODUCTION
 
@@ -253,8 +253,8 @@ Given references to two lists of items, C<LCS> returns a list
 containing their longest common subsequence.  In scalar context, it
 returns a reference to such a list. 
 
-  @lcs    = LCS(\@seq1, \@seq2, $comparison_function);
-  $lcsref = LCS(\@seq1, \@seq2, $comparison_function);
+  @lcs    = LCS( \@seq1, \@seq2, $comparison_function );
+  $lcsref = LCS( \@seq1, \@seq2, $comparison_function );
 
 
 C<$comparison_function>, if supplied, should be a function that gets
@@ -263,8 +263,8 @@ equal.  It is optional, and if omitted, defaults to `eq'.
 
 =head2 C<diff>
 
-  @diffs     = diff(\@seq1, \@seq2, $comparison_function);
-  $diffs_ref = diff(\@seq1, \@seq2, $comparison_function);
+  @diffs     = diff( \@seq1, \@seq2, $comparison_function );
+  $diffs_ref = diff( \@seq1, \@seq2, $comparison_function );
 
 C<diff> computes the smallest set of additions and deletions necessary
 to turn the first sequence into the second, and returns a description
@@ -297,7 +297,6 @@ Result:
      [ '+', 11, 't' ],
    ]
  ]
-
 
 There are five hunks here.  The first hunk says that the C<a> at
 position 0 of the first sequence should be deleted (C<->).  The second
@@ -341,12 +340,11 @@ The arguments to C<traverse_sequences> are the two sequences to
 traverse, and a callback which specifies the callback functions, like
 this:
 
-  traverse_sequences(\@seq1, \@seq2,
+  traverse_sequences( \@seq1, \@seq2,
                      { MATCH => $callback_1,
                        DISCARD_A => $callback_2,
                        DISCARD_B => $callback_3,
-                     },
-                    );
+                     } );
 
 Callbacks are invoked with at least the indices of the two arrows as
 their arguments.  They are not expected to return any values.  If a
@@ -379,8 +377,7 @@ mjd-perl-diff-request@plover.com.
 
 =head1 AUTHOR
 
-Mark-Jason Dominus, mjd-perl-diff@plover.com.  
+Mark-Jason Dominus, mjd-perl-diff@plover.com
 
 For news and updates, visit my diff/LCS web page at
 http://www.plover.com/~mjd/perl/diff/.
-
