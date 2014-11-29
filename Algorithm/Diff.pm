@@ -57,7 +57,7 @@ sub LCS_matrix {
   my ($al, $bl);			# Lengths of sequences
   $al = @$a;
   $bl = @$b;
-  
+
   my ($i, $j);
 
   $x[0] = [(0) x ($bl+1)];
@@ -158,7 +158,7 @@ sub usage {
 
 =head1 NAME
 
-Algorithm::Diff - Solve longest common subsequence problem
+Algorithm::Diff - Compute `intelligent' differences between two files / lists
 
 =head1 SYNOPSIS
 
@@ -206,6 +206,25 @@ From there it's only a small step to get diff-like output:
 
 This module solves the LCS problem.  It also includes a canned
 function to generate C<diff>-like output.
+
+It might seem from the example above that the LCS of two sequences is
+always pretty obvious, but that's not always the case, especially when
+the two sequences have many repeated elements.  For example, consider
+
+	a x b y c z p d q
+	a b c a x b y c z
+
+A naive approach might start by matching up the C<a> and C<b> that
+appear at the beginning of each sequence, like this:
+
+	a x b y c         z p d q
+	a   b   c a b y c z
+
+This finds the common subsequence C<a b c z>.  But actually, the LCS
+is C<a x b y c z>:
+
+	      a x b y c z p d q
+	a b c a x b y c z
 
 =head1 USAGE
 
