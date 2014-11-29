@@ -18,6 +18,9 @@ bag("Usage: $0 oldfile newfile") unless @ARGV == 2;
 
 my ($file1, $file2) = @ARGV;
 
+my ($char1, $char2); # string to print before file names
+    $char1 = '*' x 3; $char2 = '-' x 3;
+
 open (F1, $file1) or bag("Couldn't open $file1: $!");
 open (F2, $file2) or bag("Couldn't open $file2: $!");
 my (@f1, @f2);
@@ -30,9 +33,9 @@ my $diffs = diff(\@f1, \@f2);
 exit 0 unless @$diffs;
 
 my $st = stat($file1);
-print "*** $file1\t", scalar localtime($st->mtime), "\n";
+print "$char1 $file1\t", scalar localtime($st->mtime), "\n";
 $st = stat($file2);
-print "--- $file2\t", scalar localtime($st->mtime), "\n";
+print "$char2 $file2\t", scalar localtime($st->mtime), "\n";
 
 my ($lines_subtracted, $lines_added) = (0, 0);
 foreach my $chunk (@$diffs) {
@@ -113,4 +116,4 @@ sub bag {
   $msg .= "\n";
   warn $msg;
   exit 2;
-}
+
