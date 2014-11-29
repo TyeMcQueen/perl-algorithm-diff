@@ -56,7 +56,9 @@ OTHER RESOURCES
 `Longest Common Subsequences', at
 http://www.ics.uci.edu/~eppstein/161/960229.html 
 
-
+This code was adapted from the Smalltalk code of Mario Wolczko
+<mario@wolczko.com>, which is available at
+ftp://st.cs.uiuc.edu/pub/Smalltalk/MANCHESTER/manchester/4.0/diff.st
 
 THANKS SECTION
 
@@ -64,6 +66,10 @@ Thanks to Mark-Jason Dominus for doing the original Perl version and
 maintaining it over the last couple of years. Mark-Jason has been a huge
 contributor to the Perl community and CPAN; it's because of people like
 him that Perl has become a success.
+
+Thanks to Mario Wolczko <mario@wolczko.com> for writing and making
+publicly available his Smalltalk version of diff, which this Perl
+version is heavily based on.
 
 (From Mark-Jason Dominus' earlier versions):
 

@@ -42,6 +42,10 @@ sub import {
   1;
 }
 
+# McIlroy-Hunt diff algorithm
+# Adapted from the Smalltalk code of Mario I. Wolczko, <mario@wolczko.com>
+# by Ned Konz, perl@bike-nomad.com
+
 
 sub LCS_matrix {
   my @x;
@@ -378,3 +382,15 @@ This version by Ned Konz, perl@bike-nomad.com
 Versions through 0.59 (and much of this documentation) were written by:
 
 Mark-Jason Dominus, mjd-perl-diff@plover.com
+
+This version borrows the documentation and names of the routines
+from Mark-Jason's, but has all new code in Diff.pm.
+
+This code was adapted from the Smalltalk code of
+Mario Wolczko <mario@wolczko.com>, which is available at
+ftp://st.cs.uiuc.edu/pub/Smalltalk/MANCHESTER/manchester/4.0/diff.st
+
+The algorithm is that described in 
+I<A Fast Algorithm for Computing Longest Common Subsequences>,
+CACM, vol.20, no.5, pp.350-353, May 1977, with a few
+minor improvements to improve the speed.
