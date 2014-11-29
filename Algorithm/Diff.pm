@@ -20,7 +20,7 @@
 
 package Algorithm::Diff;
 use strict;
-$Algorithm::Diff::VERSION = '0.55';
+$Algorithm::Diff::VERSION = '0.56';
 
 
 %Algorithm::Diff::EXPORT_OK = (LCS => 1,
