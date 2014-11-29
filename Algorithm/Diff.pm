@@ -177,14 +177,24 @@ Algorithm::Diff - Compute `intelligent' differences between two files / lists
 
 =head1 INTRODUCTION
 
-I once read an article written by the authors of C<diff>; they said
-that they hard worked very hard on the algorithm until they found the
-right one.
 
-I think what they ended up using (and I hope someone will correct me,
-because I am not very confident about this) was the `longest common
-subsequence' method.  in the LCS problem, you have two sequences of
-items:
+=over 4
+
+To quote McIlroy [the author of C<diff>], ``I had tried at least three
+completely different algorithms before the final one.  C<diff> is the
+qunitessential case of not settling for mere competency in a program
+but revising it until it was right.''
+
+---I<The Unix Programming Environment>, Brian W. Kernighan and Rob
+Pike, p. 200.
+
+=back
+
+=head1 DESCRIPTION 
+
+The method used by C<diff> is to solve the `longest common
+subsequence' (LCS) problem.  in the LCS problem, you have two
+sequences of items:
 
         a b c d f g h j q z
 
