@@ -133,10 +133,20 @@ Algorithm::Diff - Compute `intelligent' differences between two files / lists
 
   use Algorithm::Diff qw(diff LCS traverse_sequences);
 
+  @lcs    = LCS( \@seq1, \@seq2 );
+
   @lcs    = LCS( \@seq1, \@seq2, $key_generation_function );
+
+  @diffs = diff( \@seq1, \@seq2 );
 
   @diffs = diff( \@seq1, \@seq2, $key_generation_function );
   
+  traverse_sequences( \@seq1, \@seq2,
+                     { MATCH => $callback,
+                       DISCARD_A => $callback,
+                       DISCARD_B => $callback,
+                     } );
+
   traverse_sequences( \@seq1, \@seq2,
                      { MATCH => $callback,
                        DISCARD_A => $callback,
