@@ -20,7 +20,7 @@
 
 package Algorithm::Diff;
 
-$VERSION = '0.54';
+$Algorithm::Diff::VERSION = '0.54';
 
 
 %Algorithm::Diff::EXPORT_OK = (LCS => 1,
@@ -50,14 +50,16 @@ sub LCS_matrix {
 
   $a = shift or usage();
   $b = shift or usage();
-  (ref $a eq ARRAY) or usage();
-  (ref $b eq ARRAY) or usage();
+  (ref $a eq 'ARRAY') or usage();
+  (ref $b eq 'ARRAY') or usage();
   my $eq = shift;
   
   my ($al, $bl);			# Lengths of sequences
   $al = @$a;
   $bl = @$b;
   
+  my ($i, $j);
+
   $x[0] = [(0) x ($bl+1)];
   for ($i=1; $i<=$al; $i++) {
     my $r = $x[$i] = [];
@@ -122,6 +124,7 @@ sub traverse_sequences {
 
 sub LCS {
   my $lcs = [];
+  my ($a, $b);
   my $functions = { MATCH => sub {push @$lcs, $a->[$_[0]]} };
   
   traverse_sequences($functions, @_);
