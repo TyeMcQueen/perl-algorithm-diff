@@ -1,15 +1,6 @@
 
 This package contains a few parts:
 
-diff.pl
-	Implementation of `diff' in Perl that is as simple as possible
-	so that you can see how it works.  The output format is not
-	compatible with regular `diff'.
-
-cdiff.pl
-	Christian Murphy's `diff' that produces real diffs that you
-	can feed to `patch'.
-
 Algorithm/LCS.pm
 	The module that actually finds the differences.  diff.pl and
 	cdiff.pl) just take the results from Algorithm::LCS and format
@@ -19,6 +10,15 @@ Algorithm/LCS.pm
 	use it for finding the smallest set of differences between two
 	strings, or for computing the most efficient way to update the
 	screen if you were replacing `curses'.
+
+diff.pl
+	Implementation of `diff' in Perl that is as simple as possible
+	so that you can see how it works.  The output format is not
+	compatible with regular `diff'.
+
+cdiff.pl
+	Christian Murphy's `diff' that produces real diffs that you
+	can feed to `patch'.
 
 
 
