@@ -168,16 +168,16 @@ Algorithm::Diff - Compute `intelligent' differences between two files / lists
 
   use Algorithm::Diff qw(diff LCS traverse_sequences);
 
-  @lcs    = LCS( \@seq1, \@seq2, $comparison_function );
+  @lcs    = LCS( \@seq1, \@seq2, $key_generation_function );
 
-  @diffs = diff( \@seq1, \@seq2, $comparison_function );
+  @diffs = diff( \@seq1, \@seq2, $key_generation_function );
   
   traverse_sequences( \@seq1, \@seq2,
                      { MATCH => $callback,
                        DISCARD_A => $callback,
                        DISCARD_B => $callback,
                      },
-                     $comparison_function );
+                     $key_generation_function );
 
 =head1 INTRODUCTION
 
@@ -257,18 +257,23 @@ Given references to two lists of items, C<LCS> returns a list
 containing their longest common subsequence.  In scalar context, it
 returns a reference to such a list. 
 
-  @lcs    = LCS( \@seq1, \@seq2, $comparison_function );
-  $lcsref = LCS( \@seq1, \@seq2, $comparison_function );
+  @lcs    = LCS( \@seq1, \@seq2 );
+  $lcsref = LCS( \@seq1, \@seq2 );
 
+C<LCS> may be passed an optional third parameter; this is a CODE
+reference to a key generation function.  See L</KEY GENERATION
+FUNCTIONS>.
 
-C<$comparison_function>, if supplied, should be a function that gets
-an item from each input list and returns true if they are considered
-equal.  It is optional, and if omitted, defaults to `eq'. 
+  @lcs    = LCS( \@seq1, \@seq2, $keyGen );
+  $lcsref = LCS( \@seq1, \@seq2, $keyGen );
+
+Additional parameters, if any, will be passed to the key generation
+routine.
 
 =head2 C<diff>
 
-  @diffs     = diff( \@seq1, \@seq2, $comparison_function );
-  $diffs_ref = diff( \@seq1, \@seq2, $comparison_function );
+  @diffs     = diff( \@seq1, \@seq2 );
+  $diffs_ref = diff( \@seq1, \@seq2 );
 
 C<diff> computes the smallest set of additions and deletions necessary
 to turn the first sequence into the second, and returns a description
@@ -309,10 +314,12 @@ be inserted (C<+>).  The third hunk says that the C<h> at position 4
 of the first sequence should be removed and replaced with the C<f>
 from position 4 of the second sequence.  The other two hunks similarly. 
 
-C<diff> accepts an optional comparison function; if specified, it will
-be called with pairs of elements and is expected to return true if the
-elements are considered equal.  If not specified, it defaults to
-C<eq>.
+C<diff> may be passed an optional third parameter; this is a CODE
+reference to a key generation function.  See L</KEY GENERATION
+FUNCTIONS>.
+
+Additional parameters, if any, will be passed to the key generation
+routine.
 
 =head2 C<traverse_sequences>
 
@@ -362,16 +369,87 @@ C<traverse_sequences> returns when both arrows are at the ends of
 their respective sequences.  It returns true on success and false on
 failure.  At present there is no way to fail.
 
-C<traverse_sequences> accepts an optional comparison function; if
-specified, it will be called with pairs of elements and is expected to
-return true if the elements are considered equal.  If not specified,
-or if C<undef>,  it defaults to C<eq>.
+C<traverse_sequences> may be passed an optional fourth parameter; this
+is a CODE reference to a key generation function.  See L</KEY
+GENERATION FUNCTIONS>.
 
-Any additional arguments to C<traverse_sequences> are passed to the
-callback functions.
+Additional parameters, if any, will be passed to the key generation
+function.
 
-For examples of how to use this, see the code.  the C<LCS> and C<diff>
-functions are implemented on top of C<traverse_sequences>.
+=head1 KEY GENERATION FUNCTIONS
+
+C<diff>, C<LCS>, and C<traverse_sequences> accept an optional last parameter.
+This is a CODE reference to a key generating (hashing) function that should
+return a string that uniquely identifies a given element.
+It should be the case that if two elements are to be considered equal,
+their keys should be the same (and the other way around).
+If no key generation function is provided, the key will be the
+element as a string.
+
+By default, comparisons will use "eq" and elements will be turned into keys
+using the default stringizing operator '""'.
+
+Where this is important is when you're comparing something other than
+strings. If it is the case that you have multiple different objects 
+that should be considered to be equal, you should supply a key
+generation function. Otherwise, you have to make sure that your arrays
+contain unique references.
+
+For instance, consider this example:
+
+  package Person;
+
+  sub new
+  {
+    my $package = shift;
+    return bless { name => '', ssn => '', @_ }, $package;
+  }
+
+  sub clone
+  {
+    my $old = shift;
+    my $new = bless { %$old }, ref($old);
+  }
+
+  sub hash
+  {
+    return shift()->{'ssn'};
+  }
+
+  my $person1 = Person->new( name => 'Joe', ssn => '123-45-6789' );
+  my $person2 = Person->new( name => 'Mary', ssn => '123-47-0000' );
+  my $person3 = Person->new( name => 'Pete', ssn => '999-45-2222' );
+  my $person4 = Person->new( name => 'Peggy', ssn => '123-45-9999' );
+  my $person5 = Person->new( name => 'Frank', ssn => '000-45-9999' );
+
+If you did this:
+
+  my $array1 = [ $person1, $person2, $person4 ];
+  my $array2 = [ $person1, $person3, $person4, $person5 ];
+  Algorithm::Diff::diff( $array1, $array2 );
+
+everything would work out OK (each of the objects would be converted
+into a string like "Person=HASH(0x82425b0)" for comparison).
+
+But if you did this:
+
+  my $array1 = [ $person1, $person2, $person4 ];
+  my $array2 = [ $person1, $person3, $person4->clone(), $person5 ];
+  Algorithm::Diff::diff( $array1, $array2 );
+
+$person4 and $person4->clone() (which have the same name and SSN)
+would be seen as different objects. If you wanted them to be considered
+equivalent, you would have to pass in a key generation function:
+
+  my $array1 = [ $person1, $person2, $person4 ];
+  my $array2 = [ $person1, $person3, $person4->clone(), $person5 ];
+  Algorithm::Diff::diff( $array1, $array2, \&Person::hash );
+
+This would use the 'ssn' field in each Person as a comparison key, and
+so would consider $person4 and $person4->clone() as equal.
+
+You may also pass additional parameters to the key generation function
+if you wish.
 
 =head1 AUTHOR
 
