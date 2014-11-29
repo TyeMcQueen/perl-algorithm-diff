@@ -16,7 +16,7 @@
 # means "line number". But theoretically the code could be used more generally
 use strict;
 
-use Algorithm::LCS qw(diff);
+use Algorithm::Diff qw(diff);
 use File::stat;
 use vars qw ($opt_C $opt_c $opt_u $opt_U);
 use Getopt::Std;
