@@ -33,6 +33,13 @@ Algorithm::Diff
 	strings, or for computing the most efficient way to update the
 	screen if you were replacing `curses'.
 
+Algorithm::DiffOld
+	An alternative module for those of you who HAVE to have the
+	old interface (which uses a comparision function rather than
+	a key generating function). Note that this is many times (20?)
+	slower than Algorithm::Diff, because it has to do M*N comparisons
+	rather than M+N key generations or so for Algorithm::Diff.
+
 diff.pl
 	Implementation of `diff' in Perl that is as simple as possible
 	so that you can see how it works.  The output format is not

@@ -1,5 +1,6 @@
 Changes
-lib/Algorithm/Diff.pm
+lib/Algorithm/Diff.pm	Algorithm::Diff perl module
+lib/Algorithm/DiffOld.pm	Algorithm::Diff perl module with old behavior
 Makefile.PL
 MANIFEST
 README
