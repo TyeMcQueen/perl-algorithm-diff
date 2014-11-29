@@ -146,24 +146,16 @@ Algorithm::Diff - Compute `intelligent' differences between two files / lists
 
 =head1 INTRODUCTION
 
+(by Mark-Jason Dominus)
 
-=over 4
+I once read an article written by the authors of C<diff>; they said
+that they hard worked very hard on the algorithm until they found the
+right one.
 
-To quote McIlroy [the author of C<diff>], ``I had tried at least three
-completely different algorithms before the final one.  C<diff> is the
-qunitessential case of not settling for mere competency in a program
-but revising it until it was right.''
-
----I<The Unix Programming Environment>, Brian W. Kernighan and Rob
-Pike, p. 200.
-
-=back
-
-=head1 DESCRIPTION 
-
-The method used by C<diff> is to solve the `longest common
-subsequence' (LCS) problem.  in the LCS problem, you have two
-sequences of items:
+I think what they ended up using (and I hope someone will correct me,
+because I am not very confident about this) was the `longest common
+subsequence' method.  in the LCS problem, you have two sequences of
+items:
 
         a b c d f g h j q z
 
@@ -178,12 +170,7 @@ I<S> is
 
         a b c d f g j z
 
-(You can get it by deleting the C<h> and C<q> from the first sequence,
-or by deleting the C<e>, C<i>, and C<k r x y> from the second
-sequence.)
-
-From the longest common subsequence it's only a small step to get
-diff-like output:
+From there it's only a small step to get diff-like output:
 
         e   h i   k   q r x y 
         +   - +   +   - + + +
@@ -296,7 +283,7 @@ sequence A, and arrow B points to an element of the sequence B.
 Initially, the arrows point to the first elements of the respective
 sequences.  C<traverse_sequences> will advance the arrows through the
 sequences one element at a time, calling an appropriate user-specified
-callback function before each advance.  It will advance the arrows in
+callback function before each advance.  It willadvance the arrows in
 such a way that if there are equal elements C<$A[$i]> and C<$B[$j]>
 which are equal and which are part of the LCS, there will be some
 moment during the execution of C<traverse_sequences> when arrow A is
