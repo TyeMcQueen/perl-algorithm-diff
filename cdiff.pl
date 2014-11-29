@@ -11,6 +11,9 @@
 #
 # Command-line arguments and context lines feature added
 # September 1998 Amir D. Karger (karger@bead.aecom.yu.edu)
+#
+# In this file, "item" usually means "line of text", and "item number" usually
+# means "line number". But theoretically the code could be used more generally
 use strict;
 
 use Algorithm::LCS qw(diff);
@@ -61,6 +64,7 @@ close F1;
 chomp(@f2 = <F2>);
 close F2;
 
+# diff yields lots of pieces, each of which is basically a Block object
 my $diffs = diff(\@f1, \@f2);
 exit 0 unless @$diffs;
 
