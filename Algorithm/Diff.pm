@@ -19,7 +19,7 @@
 #
 
 package Algorithm::Diff;
-
+use strict;
 $Algorithm::Diff::VERSION = '0.54';
 
 
