@@ -1,7 +1,7 @@
-MANIFEST
+Changes
+lib/Algorithm/Diff.pm
 Makefile.PL
-Algorithm/Diff.pm
-diff.pl
-cdiff.pl
+MANIFEST
 README
-t/none.t
+cdiff.pl                Context diff utility
+diff.pl                 Simple Unix diff utility written in Perl
