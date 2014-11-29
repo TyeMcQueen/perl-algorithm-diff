@@ -3,5 +3,7 @@ lib/Algorithm/Diff.pm
 Makefile.PL
 MANIFEST
 README
+test.pl
 cdiff.pl                Context diff utility
 diff.pl                 Simple Unix diff utility written in Perl
+diffnew.pl              Full-featured Unix diff utility written in Perl
