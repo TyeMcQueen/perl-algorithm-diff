@@ -32,8 +32,13 @@ diff.pl
 	compatible with regular `diff'.
 
 cdiff.pl
-	Christian Murphy's `diff' that produces real diffs that you
-	can feed to `patch'.
+	`diff' that generates real context diffs in either traditional
+	format or GNU unified format. Original contextless `context'
+	diff supplied by Christian Murphy.  Modifications to make it
+	into a real full-featured diff with -c and -u options supplied
+	by Amir D. Karger.  
+
+	Yes, you can use this program to generate patches.
 
 
 
