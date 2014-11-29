@@ -333,6 +333,12 @@ callback functions.
 For examples of how to use this, see the code.  the C<LCS> and C<diff>
 functions are implemented on top of C<traverse_sequences>.
 
+=head1 MAILING LIST
+
+To join a low-volume mailing list for announcements related to diff
+and Algorithm::LCS, send an empty mail message to
+mjd-perl-diff-request@plover.com.
+
 =head1 AUTHOR
 
 Mark-Jason Dominus, mjd-perl-lcs@plover.com.  

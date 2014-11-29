@@ -21,11 +21,27 @@ Algorithm/LCS.pm
 	screen if you were replacing `curses'.
 
 
+
+OTHER RESOURCES
+
+Visit my diff/LCS web page at http://www.plover.com/~mjd/perl/diff/.
+
+To join a low-volume mailing list for announcements related to diff
+and Algorithm::LCS, send an empty mail message to
+mjd-perl-diff-request@plover.com.
+
+`Longest Common Subsequences', at
+http://www.ics.uci.edu/~eppstein/161/960229.html 
+
+
+
 THANKS SECTION
 
 Thanks to Christian Murphy for writing `cdiff.pl'.  In this world
 	there are the talkers and the doers, and Christian is
 	obviously a doer.  
+
+Thanks to Tim Bunce for his code that I haven't incorporated yet.
 
 Thanks to David Eppstein for his lucid page on dynamic programming and
 	the Longest Common Subsequences problem, which provided 2/3 of
