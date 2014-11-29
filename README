@@ -69,19 +69,4 @@ it sit in a closet and didn't release it.  Thank you thank you thank
 you, Amir!
 
 Thanks to Christian Murphy for adding the first context diff format
-suppoort to `cdiff.pl'.
-
-Thanks to Tim Bunce for his code that I haven't incorporated yet.
-
-Thanks to David Eppstein for his lucid page on dynamic programming and
-	the Longest Common Subsequences problem, which provided 2/3 of
-	the inspiration for this project.
-
-Thanks to Abigail for renaming her own modules so that this module
-	could be Algorithm::Diff instead of Algorithms::Diff.
-
-Thanks to Nat Torkington for being himself.
-
-Thanks to the countless folks who showed up in comp.lang.perl.misc
-	every month asking `how can I do `diff' in Perl' for the other
-	1/3 of the inspiration.
+support to `cdiff.pl'.
