@@ -1,5 +1,13 @@
 Revision history for Perl extension Algorithm::Diff.
 
+1.10 July 7 2000
+- Uploaded to CPAN
+- More optimizations
+- Added Algorithm::DiffOld
+
+1.08
+- Fixed bug with binary search that was making diff output too big
+
 1.06 Wed Jun 14 14:15:31 PDT 2000
 - First CPAN version by NEDKONZ
 - Added MJD's list info to README
