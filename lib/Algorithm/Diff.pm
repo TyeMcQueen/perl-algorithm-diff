@@ -124,6 +124,7 @@ sub _longestCommonSubsequence
 {
     my $a        = shift;    # array ref
     my $b        = shift;    # array ref or hash ref
+    my $counting = shift;    # scalar
     my $keyGen   = shift;    # code ref
     my $compare;             # code ref
 
@@ -151,7 +152,7 @@ sub _longestCommonSubsequence
     }
 
     my ( $aStart, $aFinish, $matchVector ) = ( 0, $#$a, [] );
-    my ( $bMatches ) = ( {} );
+    my ( $prunedCount, $bMatches ) = ( 0, {} );
 
     if ( ref($b) eq 'HASH' )    # was $bMatches prepared for us?
     {
@@ -167,6 +168,7 @@ sub _longestCommonSubsequence
             and &$compare( $a->[$aStart], $b->[$bStart], @_ ) )
         {
             $matchVector->[ $aStart++ ] = $bStart++;
+            $prunedCount++;
         }
 
         # now the end
@@ -175,6 +177,7 @@ sub _longestCommonSubsequence
             and &$compare( $a->[$aFinish], $b->[$bFinish], @_ ) )
         {
             $matchVector->[ $aFinish-- ] = $bFinish--;
+            $prunedCount++;
         }
 
         # Now compute the equivalence classes of positions of elements
@@ -216,10 +219,15 @@ sub _longestCommonSubsequence
 
     if (@$thresh)
     {
+        return $prunedCount + @$thresh if $counting;
         for ( my $link = $links->[$#$thresh] ; $link ; $link = $link->[0] )
         {
             $matchVector->[ $link->[1] ] = $link->[2];
         }
+    }
+    elsif ($counting)
+    {
+        return $prunedCount;
     }
 
     return wantarray ? @$matchVector : $matchVector;
@@ -236,7 +244,7 @@ sub traverse_sequences
     my $finishedACallback = $callbacks->{'A_FINISHED'};
     my $discardBCallback  = $callbacks->{'DISCARD_B'} || sub { };
     my $finishedBCallback = $callbacks->{'B_FINISHED'};
-    my $matchVector = _longestCommonSubsequence( $a, $b, $keyGen, @_ );
+    my $matchVector = _longestCommonSubsequence( $a, $b, 0, $keyGen, @_ );
 
     # Process all the lines in @$matchVector
     my $lastA = $#$a;
@@ -309,7 +317,7 @@ sub traverse_balanced
     my $discardACallback  = $callbacks->{'DISCARD_A'} || sub { };
     my $discardBCallback  = $callbacks->{'DISCARD_B'} || sub { };
     my $changeCallback    = $callbacks->{'CHANGE'};
-    my $matchVector = _longestCommonSubsequence( $a, $b, $keyGen, @_ );
+    my $matchVector = _longestCommonSubsequence( $a, $b, 0, $keyGen, @_ );
 
     # Process all the lines in match vector
     my $lastA = $#$a;
@@ -414,7 +422,7 @@ sub LCS
 {
     my $a = shift;                  # array ref
     my $b = shift;                  # array ref or hash ref
-    my $matchVector = _longestCommonSubsequence( $a, $b, @_ );
+    my $matchVector = _longestCommonSubsequence( $a, $b, 0, @_ );
     my @retval;
     my $i;
     for ( $i = 0 ; $i <= $#$matchVector ; $i++ )
