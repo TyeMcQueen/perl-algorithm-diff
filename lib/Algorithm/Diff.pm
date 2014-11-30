@@ -9,7 +9,7 @@ $VERSION = sprintf('%d.%02d', (q$Revision: 1.15 $ =~ /\d+/g));
 require Exporter;
 *import    = \&Exporter::import;
 @EXPORT_OK = qw(
-    prepare LCS
+    prepare LCS LCS_length
     diff sdiff
     traverse_sequences traverse_balanced
 );
@@ -435,6 +435,13 @@ sub LCS
     return wantarray ? @retval : \@retval;
 }
 
+sub LCS_length
+{
+    my $a = shift;                          # array ref
+    my $b = shift;                          # array ref or hash ref
+    return _longestCommonSubsequence( $a, $b, 1, @_ );
+}
+
 sub diff
 {
     my $a      = shift;    # array ref
@@ -495,12 +502,13 @@ Algorithm::Diff - Compute `intelligent' differences between two files / lists
 =head1 SYNOPSIS
 
     use Algorithm::Diff qw(
-        LCS
+        LCS LCS_length
         diff sdiff
         traverse_sequences traverse_balanced );
 
     @lcs    = LCS( \@seq1, \@seq2 );
     $lcsref = LCS( \@seq1, \@seq2 );
+    $count  = LCS_length( \@seq1, \@seq2 );
 
     @diffs  = diff( \@seq1, \@seq2 );
 
@@ -617,11 +625,17 @@ FUNCTIONS>.
 Additional parameters, if any, will be passed to the key generation
 routine.
 
+=head2 C<LCS_length>
+
+This is just like C<LCS> except it only returns the length of the
+longest common subsequence.  This provides a performance gain of about
+9% compared to C<LCS>.
+
 =head2 C<prepare>
 
 Given a reference to a list of items, C<prepare> returns a reference
 to a hash which can be used when comparing this sequence to other
-sequences with C<LCS>.
+sequences with C<LCS> or C<LCS_length>.
 
     $prep = prepare( \@seq1 );
     for $i ( 0 .. 10_000 )
