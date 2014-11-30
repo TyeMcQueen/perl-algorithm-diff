@@ -5,7 +5,7 @@ use strict;
 use integer;    # see below in _replaceNextLargerWith() for mod to make
                 # if you don't use this
 use vars qw( $VERSION @EXPORT_OK );
-$VERSION = 1.19_01;
+$VERSION = 1.19_02;
 #          ^ ^^ ^^-- Incremented at will
 #          | \+----- Incremented for non-trivial changes to features
 #          \-------- Incremented for fundamental changes
