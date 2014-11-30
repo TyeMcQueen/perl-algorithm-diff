@@ -393,7 +393,8 @@ sub traverse_balanced
 sub LCS
 {
     my $a = shift;                  # array ref
-    my $matchVector = _longestCommonSubsequence( $a, @_ );
+    my $b = shift;                  # array ref
+    my $matchVector = _longestCommonSubsequence( $a, $b, @_ );
     my @retval;
     my $i;
     for ( $i = 0 ; $i <= $#$matchVector ; $i++ )
