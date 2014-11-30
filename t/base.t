@@ -11,11 +11,11 @@ BEGIN
 {
 	$|++;
 	plan tests => 0;
-	$SIG{__DIE__} = sub# breakpoint on die
+	$SIG{__DIE__} = sub # breakpoint on die
 	{
 		$DB::single = 1;
 		die @_;
-	  }
+	}
 }
 
 my @a = qw(a b c e h j l m n p);
@@ -36,14 +36,19 @@ my $correctDiffResult = [
 	[ [ '+', 6, 'k' ] ],
 
 	[
-		[ '-', 8,  'n' ], [ '-', 9,  'p' ],
-		[ '+', 9,  'r' ], [ '+', 10, 's' ],
+		[ '-', 8,  'n' ], 
+		[ '-', 9,  'p' ],
+		[ '+', 9,  'r' ], 
+		[ '+', 10, 's' ],
 		[ '+', 11, 't' ],
 	]
 ];
 
+# Result of LCS must be as long as @a
 my @result = Algorithm::Diff::_longestCommonSubsequence( \@a, \@b );
-ok( scalar(@result), 8, "length of _longestCommonSubsequence" );
+ok( scalar(@result),
+	8,
+	"length of _longestCommonSubsequence" );
 
 # result has b[] line#s keyed by a[] line#
 # print "result =", join(" ", map { defined($_) ? $_ : 'undef' } @result), "\n";

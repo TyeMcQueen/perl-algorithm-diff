@@ -1,11 +1,11 @@
 package Algorithm::Diff;
 use strict;
 use vars qw($VERSION @EXPORT_OK @ISA @EXPORT);
-use integer;		# see below in _replaceNextLargerWith() for mod to make
-					# if you don't use this
+use integer;    # see below in _replaceNextLargerWith() for mod to make
+                # if you don't use this
 require Exporter;
-@ISA = qw(Exporter);
-@EXPORT = qw();
+@ISA       = qw(Exporter);
+@EXPORT    = qw();
 @EXPORT_OK = qw(LCS diff traverse_sequences);
 $VERSION = sprintf('%d.%02d', (q$Revision: 1.11 $ =~ /\d+/g));
 
@@ -338,26 +338,26 @@ minor improvements to improve the speed.
 
 sub _withPositionsOfInInterval
 {
-	my $aCollection = shift;	# array ref
-	my $start = shift;
-	my $end = shift;
-	my $keyGen = shift;
+	my $aCollection = shift;    # array ref
+	my $start       = shift;
+	my $end         = shift;
+	my $keyGen      = shift;
 	my %d;
 	my $index;
-	for ( $index = $start; $index <= $end; $index++ )
+	for ( $index = $start ; $index <= $end ; $index++ )
 	{
-		my $element = $aCollection->[ $index ];
+		my $element = $aCollection->[$index];
 		my $key = &$keyGen( $element, @_ );
-		if ( exists( $d{ $key } ) )
+		if ( exists( $d{$key} ) )
 		{
-			push( @{ $d{ $key } }, $index );
+			push ( @{ $d{$key} }, $index );
 		}
 		else
 		{
-			$d{ $key } = [ $index ];
+			$d{$key} = [$index];
 		}
 	}
-	return wantarray ? %d: \%d;
+	return wantarray ? %d : \%d;
 }
 
 # Find the place at which aValue would normally be inserted into the array. If
@@ -374,9 +374,9 @@ sub _replaceNextLargerWith
 	$high ||= $#$array;
 
 	# off the end?
-	if ( $high == -1 || $aValue > $array->[ -1 ] )
+	if ( $high == -1 || $aValue > $array->[-1] )
 	{
-		push( @$array, $aValue );
+		push ( @$array, $aValue );
 		return $high + 1;
 	}
 
@@ -387,8 +387,9 @@ sub _replaceNextLargerWith
 	while ( $low <= $high )
 	{
 		$index = ( $high + $low ) / 2;
-#		$index = int(( $high + $low ) / 2);		# without 'use integer'
-		$found = $array->[ $index ];
+
+		#		$index = int(( $high + $low ) / 2);		# without 'use integer'
+		$found = $array->[$index];
 
 		if ( $aValue == $found )
 		{
@@ -405,7 +406,7 @@ sub _replaceNextLargerWith
 	}
 
 	# now insertion point is in $low.
-	$array->[ $low ] = $aValue;		# overwrite next larger
+	$array->[$low] = $aValue;    # overwrite next larger
 	return $low;
 }
 
@@ -428,32 +429,34 @@ sub _replaceNextLargerWith
 
 sub _longestCommonSubsequence
 {
-	my $a = shift;	# array ref
-	my $b = shift;	# array ref
-	my $keyGen = shift;	# code ref
-	my $compare;	# code ref
+	my $a      = shift;    # array ref
+	my $b      = shift;    # array ref
+	my $keyGen = shift;    # code ref
+	my $compare;           # code ref
 
 	# set up code refs
 	# Note that these are optimized.
-	if ( !defined( $keyGen ) )	# optimize for strings
+	if ( !defined($keyGen) )    # optimize for strings
 	{
 		$keyGen = sub { $_[0] };
-		$compare = sub { my ($a, $b) = @_; $a eq $b };
+		$compare = sub { my ( $a, $b ) = @_; $a eq $b };
 	}
 	else
 	{
 		$compare = sub {
-			my $a = shift; my $b = shift;
-			&$keyGen( $a, @_ ) eq &$keyGen( $b, @_ )
+			my $a = shift;
+			my $b = shift;
+			&$keyGen( $a, @_ ) eq &$keyGen( $b, @_ );
 		};
 	}
 
-	my ($aStart, $aFinish, $bStart, $bFinish, $matchVector) = (0, $#$a, 0, $#$b, []);
+	my ( $aStart, $aFinish, $bStart, $bFinish, $matchVector ) =
+	  ( 0, $#$a, 0, $#$b, [] );
 
 	# First we prune off any common elements at the beginning
 	while ( $aStart <= $aFinish
 		and $bStart <= $bFinish
-		and &$compare( $a->[ $aStart ], $b->[ $bStart ], @_ ) )
+		and &$compare( $a->[$aStart], $b->[$bStart], @_ ) )
 	{
 		$matchVector->[ $aStart++ ] = $bStart++;
 	}
@@ -461,31 +464,31 @@ sub _longestCommonSubsequence
 	# now the end
 	while ( $aStart <= $aFinish
 		and $bStart <= $bFinish
-		and &$compare( $a->[ $aFinish ], $b->[ $bFinish ], @_ ) )
+		and &$compare( $a->[$aFinish], $b->[$bFinish], @_ ) )
 	{
 		$matchVector->[ $aFinish-- ] = $bFinish--;
 	}
 
 	# Now compute the equivalence classes of positions of elements
-	my $bMatches = _withPositionsOfInInterval( $b, $bStart, $bFinish, $keyGen, @_ );
+	my $bMatches =
+	  _withPositionsOfInInterval( $b, $bStart, $bFinish, $keyGen, @_ );
 	my $thresh = [];
-	my $links = [];
+	my $links  = [];
 
 	my ( $i, $ai, $j, $k );
-	for ( $i = $aStart; $i <= $aFinish; $i++ )
+	for ( $i = $aStart ; $i <= $aFinish ; $i++ )
 	{
-		$ai = &$keyGen( $a->[ $i ], @_ );
-		if ( exists( $bMatches->{ $ai } ) )
+		$ai = &$keyGen( $a->[$i], @_ );
+		if ( exists( $bMatches->{$ai} ) )
 		{
 			$k = 0;
-			for $j ( reverse( @{ $bMatches->{ $ai } } ) )
+			for $j ( reverse( @{ $bMatches->{$ai} } ) )
 			{
+
 				# optimization: most of the time this will be true
-				if ( $k
-					and $thresh->[ $k ] > $j
-					and $thresh->[ $k - 1 ] < $j )
+				if ( $k and $thresh->[$k] > $j and $thresh->[ $k - 1 ] < $j )
 				{
-					$thresh->[ $k ] = $j;
+					$thresh->[$k] = $j;
 				}
 				else
 				{
@@ -493,20 +496,20 @@ sub _longestCommonSubsequence
 				}
 
 				# oddly, it's faster to always test this (CPU cache?).
-				if ( defined( $k ) )
+				if ( defined($k) )
 				{
-					$links->[ $k ] = 
-						[ ( $k ? $links->[ $k - 1 ] : undef ), $i, $j ];
+					$links->[$k] =
+					  [ ( $k ? $links->[ $k - 1 ] : undef ), $i, $j ];
 				}
 			}
 		}
 	}
 
-	if ( @$thresh )
+	if (@$thresh)
 	{
-		for ( my $link = $links->[ $#$thresh ]; $link; $link = $link->[ 0 ] )
+		for ( my $link = $links->[$#$thresh] ; $link ; $link = $link->[0] )
 		{
-			$matchVector->[ $link->[ 1 ] ] = $link->[ 2 ];
+			$matchVector->[ $link->[1] ] = $link->[2];
 		}
 	}
 
@@ -515,68 +518,71 @@ sub _longestCommonSubsequence
 
 sub traverse_sequences
 {
-	my $a = shift;	# array ref
-	my $b = shift;	# array ref
-	my $callbacks = shift || { };
-	my $keyGen = shift;
-	my $matchCallback = $callbacks->{'MATCH'} || sub { };
-	my $discardACallback = $callbacks->{'DISCARD_A'} || sub { };
+	my $a                 = shift;                                  # array ref
+	my $b                 = shift;                                  # array ref
+	my $callbacks         = shift || {};
+	my $keyGen            = shift;
+	my $matchCallback     = $callbacks->{'MATCH'} || sub { };
+	my $discardACallback  = $callbacks->{'DISCARD_A'} || sub { };
 	my $finishedACallback = $callbacks->{'A_FINISHED'};
-	my $discardBCallback = $callbacks->{'DISCARD_B'} || sub { };
+	my $discardBCallback  = $callbacks->{'DISCARD_B'} || sub { };
 	my $finishedBCallback = $callbacks->{'B_FINISHED'};
 	my $matchVector = _longestCommonSubsequence( $a, $b, $keyGen, @_ );
-	# Process all the lines in match vector
+
+	# Process all the lines in @$matchVector
 	my $lastA = $#$a;
 	my $lastB = $#$b;
-	my $bi = 0;
+	my $bi    = 0;
 	my $ai;
 
-	for ( $ai = 0; $ai <= $#$matchVector; $ai++ )
+	for ( $ai = 0 ; $ai <= $#$matchVector ; $ai++ )
 	{
-		my $bLine = $matchVector->[ $ai ];
-		if ( defined( $bLine ) )	# matched
+		my $bLine = $matchVector->[$ai];
+		if ( defined($bLine) )    # matched
 		{
 			&$discardBCallback( $ai, $bi++, @_ ) while $bi < $bLine;
-			&$matchCallback( $ai, $bi++, @_ );
+			&$matchCallback( $ai,    $bi++, @_ );
 		}
 		else
 		{
 			&$discardACallback( $ai, $bi, @_ );
 		}
 	}
-	# the last entry (if any) processed was a match.
 
-	if ( defined( $finishedBCallback ) && $ai <= $lastA )
-	{
-		&$finishedBCallback( $bi, @_ );
-	}
-	else
-	{
-		&$discardACallback( $ai++, $bi, @_ ) while ( $ai <= $lastA );
-	}
+	# The last entry (if any) processed was a match.
+	# $ai and $bi point just past the last matching lines in their sequences.
 
-	if ( defined( $finishedACallback ) && $bi <= $lastB )
-	{
-		&$finishedACallback( $ai, @_ );
-	}
-	else
-	{
-		&$discardBCallback( $ai, $bi++, @_ ) while ( $bi <= $lastB );
-	}
+			if ( defined($finishedBCallback) && $ai <= $lastA )
+			{
+				&$finishedBCallback( $bi, @_ );
+			}
+			else
+			{
+				&$discardACallback( $ai++, $bi, @_ ) while ( $ai <= $lastA );
+			}
+
+			if ( defined($finishedACallback) && $bi <= $lastB )
+			{
+				&$finishedACallback( $ai, @_ );
+			}
+			else
+			{
+				&$discardBCallback( $ai, $bi++, @_ ) while ( $bi <= $lastB );
+			}
 	return 1;
 }
 
 sub LCS
 {
-	my $a = shift;	# array ref
+	my $a = shift;                                           # array ref
 	my $matchVector = _longestCommonSubsequence( $a, @_ );
 	my @retval;
 	my $i;
-	for ( $i = 0; $i <= $#$matchVector; $i++ )
+	for ( $i = 0 ; $i <= $#$matchVector ; $i++ )
 	{
-		if ( defined( $matchVector->[ $i ] ) )
+		if ( defined( $matchVector->[$i] ) )
 		{
-			push( @retval, $a->[ $i ] );
+			push ( @retval, $a->[$i] );
 		}
 	}
 	return wantarray ? @retval : \@retval;
@@ -584,16 +590,15 @@ sub LCS
 
 sub diff
 {
-	my $a = shift;	# array ref
-	my $b = shift;	# array ref
+	my $a      = shift;    # array ref
+	my $b      = shift;    # array ref
 	my $retval = [];
-	my $hunk = [];
-	my $discard = sub { push( @$hunk, [ '-', $_[ 0 ], $a->[ $_[ 0 ] ] ] ) };
-	my $add = sub { push( @$hunk, [ '+', $_[ 1 ], $b->[ $_[ 1 ] ] ] ) };
-	my $match = sub { push( @$retval, $hunk ) if scalar(@$hunk); $hunk = [] };
+	my $hunk   = [];
+	my $discard = sub { push ( @$hunk, [ '-', $_[0], $a->[ $_[0] ] ] ) };
+	my $add = sub { push ( @$hunk, [ '+', $_[1], $b->[ $_[1] ] ] ) };
+	my $match = sub { push ( @$retval, $hunk ) if scalar(@$hunk); $hunk = [] };
 	traverse_sequences( $a, $b,
-		{ MATCH => $match, DISCARD_A => $discard, DISCARD_B => $add },
-		@_ );
+		{ MATCH => $match, DISCARD_A => $discard, DISCARD_B => $add }, @_ );
 	&$match();
 	return wantarray ? @$retval : $retval;
 }
