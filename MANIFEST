@@ -4,7 +4,7 @@ lib/Algorithm/DiffOld.pm	Algorithm::Diff perl module with old behavior
 Makefile.PL
 MANIFEST
 README
-test.pl
+t/base.t		Test script
 cdiff.pl                Context diff utility
 diff.pl                 Simple Unix diff utility written in Perl
 diffnew.pl              Full-featured Unix diff utility written in Perl
