@@ -85,39 +85,6 @@ to do this with a key generation function as in the stock Algorithm::Diff.
 
 =cut
 
-# Create a hash that maps each element of $aCollection to the set of positions
-# it occupies in $aCollection, restricted to the elements within the range of
-# indexes specified by $start and $end.
-# The fourth parameter is a subroutine reference that will be called to
-# generate a string to use as a key.
-# Additional parameters, if any, will be passed to this subroutine.
-#
-# my $hashRef = _withPositionsOfInInterval( \@array, $start, $end, $keyGen );
-
-sub _withPositionsOfInInterval
-{
-	my $aCollection = shift;	# array ref
-	my $start = shift;
-	my $end = shift;
-	my $keyGen = shift;
-	my %d;
-	my $index;
-	for ( $index = $start; $index <= $end; $index++ )
-	{
-		my $element = $aCollection->[ $index ];
-		my $key = &$keyGen( $element, @_ );
-		if ( exists( $d{ $key } ) )
-		{
-			push( @{ $d{ $key } }, $index );
-		}
-		else
-		{
-			$d{ $key } = [ $index ];
-		}
-	}
-	return wantarray ? %d: \%d;
-}
-
 # Find the place at which aValue would normally be inserted into the array. If
 # that place is already occupied by aValue, do nothing, and return undef. If
 # the place does not exist (i.e., it is off the end of the array), add it to
@@ -188,23 +155,7 @@ sub _longestCommonSubsequence
 {
 	my $a = shift;	# array ref
 	my $b = shift;	# array ref
-	my $keyGen = shift;	# code ref
-	my $compare;	# code ref
-
-	# set up code refs
-	# Note that these are optimized.
-	if ( !defined( $keyGen ) )	# optimize for strings
-	{
-		$keyGen = sub { $_[0] };
-		$compare = sub { my ($a, $b) = @_; $a eq $b };
-	}
-	else
-	{
-		$compare = sub {
-			my $a = shift; my $b = shift;
-			&$keyGen( $a, @_ ) eq &$keyGen( $b, @_ )
-		};
-	}
+	my $compare = shift || sub { my $a = shift; my $b = shift; $a eq $b };
 
 	my ($aStart, $aFinish, $bStart, $bFinish, $matchVector) = (0, $#$a, 0, $#$b, []);
 
@@ -224,38 +175,35 @@ sub _longestCommonSubsequence
 		$matchVector->[ $aFinish-- ] = $bFinish--;
 	}
 
-	# Now compute the equivalence classes of positions of elements
-	my $bMatches = _withPositionsOfInInterval( $b, $bStart, $bFinish, $keyGen, @_ );
 	my $thresh = [];
 	my $links = [];
 
 	my ( $i, $ai, $j, $k );
 	for ( $i = $aStart; $i <= $aFinish; $i++ )
 	{
-		$ai = &$keyGen( $a->[ $i ] );
-		if ( exists( $bMatches->{ $ai } ) )
+		$k = 0;
+		# look for each element of @b between $bStart and $bFinish
+		# that matches $a->[ $i ], in reverse order
+		for ($j = $bFinish; $j >= $bStart; $j--)
 		{
-			$k = 0;
-			for $j ( reverse( @{ $bMatches->{ $ai } } ) )
+			next if ! &$compare( $a->[$i], $b->[$j] );
+			# optimization: most of the time this will be true
+			if ( $k
+				and $thresh->[ $k ] > $j
+				and $thresh->[ $k - 1 ] < $j )
 			{
-				# optimization: most of the time this will be true
-				if ( $k
-					and $thresh->[ $k ] > $j
-					and $thresh->[ $k - 1 ] < $j )
-				{
-					$thresh->[ $k ] = $j;
-				}
-				else
-				{
-					$k = _replaceNextLargerWith( $thresh, $j, $k );
-				}
+				$thresh->[ $k ] = $j;
+			}
+			else
+			{
+				$k = _replaceNextLargerWith( $thresh, $j, $k );
+			}
 
-				# oddly, it's faster to always test this (CPU cache?).
-				if ( defined( $k ) )
-				{
-					$links->[ $k ] = 
-						[ ( $k ? $links->[ $k - 1 ] : undef ), $i, $j ];
-				}
+			# oddly, it's faster to always test this (CPU cache?).
+			if ( defined( $k ) )
+			{
+				$links->[ $k ] = 
+					[ ( $k ? $links->[ $k - 1 ] : undef ), $i, $j ];
 			}
 		}
 	}
