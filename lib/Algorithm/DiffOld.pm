@@ -99,7 +99,7 @@ sub _replaceNextLargerWith
 	$high ||= $#$array;
 
 	# off the end?
-	if ( $high == -1 || $aValue > $array->[ -1 ] )
+	if ( $high == -1  || $aValue > $array->[ -1 ] )
 	{
 		push( @$array, $aValue );
 		return $high + 1;
@@ -140,14 +140,9 @@ sub _replaceNextLargerWith
 # 	$a->[ $i ] = $b->[ $result[ $i ] ]
 # foreach $i in ( 0..scalar( @result ) if $result[ $i ] is defined.
 
-# An additional argument may be passed; this is a hash or key generating
-# function that should return a string that uniquely identifies the given
-# element.  It should be the case that if the key is the same, the elements
-# will compare the same. If this parameter is undef or missing, the key
-# will be the element as a string.
-
-# By default, comparisons will use "eq" and elements will be turned into keys
-# using the default stringizing operator '""'.
+# An additional argument may be passed; this is a CODE ref to a comparison
+# routine. By default, comparisons will use "eq" .
+# Note that this routine will be called as many as M*N times, so make it fast!
 
 # Additional parameters, if any, will be passed to the key generation routine.
 
@@ -157,7 +152,11 @@ sub _longestCommonSubsequence
 	my $b = shift;	# array ref
 	my $compare = shift || sub { my $a = shift; my $b = shift; $a eq $b };
 
-	my ($aStart, $aFinish, $bStart, $bFinish, $matchVector) = (0, $#$a, 0, $#$b, []);
+	my $aStart = 0;
+	my $aFinish = $#$a;
+	my $bStart = 0;
+	my $bFinish = $#$b;
+	my $matchVector = [];
 
 	# First we prune off any common elements at the beginning
 	while ( $aStart <= $aFinish
