@@ -175,6 +175,57 @@ FUNCTIONS>.
 Additional parameters, if any, will be passed to the key generation
 routine.
 
+=head2 C<sdiff>
+
+  @sdiffs     = sdiff( \@seq1, \@seq2 );
+  $sdiffs_ref = sdiff( \@seq1, \@seq2 );
+
+C<sdiff> computes all necessary components to show two sequences
+and their minimized differences side by side, just like the 
+Unix-utility I<sdiff> does:
+
+    same             same
+    before     |     after
+    old        <     -
+    -          >     new
+
+It returns a list of array refs, each pointing to an array of 
+display instructions. In scalar context it returns a reference
+to such a list.
+
+Display instructions consist of three elements: A modifier indicator
+(C<+>: Element added, C<->: Element removed, C<u>: Element unmodified, 
+C<c>: Element changed) and the value of the old and new elements, to
+be displayed side by side.
+
+An C<sdiff> of the following two sequences:
+
+  a b c e h j l m n p
+  b c d e f j k l m r s t
+
+results in
+
+[ [ '-', 'a', ''  ],
+  [ 'u', 'b', 'b' ],
+  [ 'u', 'c', 'c' ],
+  [ '+', '',  'd' ],
+  [ 'u', 'e', 'e' ],
+  [ 'c', 'h', 'f' ],
+  [ 'u', 'j', 'j' ],
+  [ '+', '',  'k' ],
+  [ 'u', 'l', 'l' ],
+  [ 'u', 'm', 'm' ],
+  [ 'c', 'n', 'r' ],
+  [ 'c', 'p', 's' ],
+  [ '+', '', 't' ] ]
+
+C<sdiff> may be passed an optional third parameter; this is a CODE
+reference to a key generation function.  See L</KEY GENERATION
+FUNCTIONS>.
+
+Additional parameters, if any, will be passed to the key generation
+routine.
+
 =head2 C<traverse_sequences>
 
 C<traverse_sequences> is the most general facility provided by this
