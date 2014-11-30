@@ -84,12 +84,14 @@ sub discard_a
 
 sub finished_a
 {
-	$finishedA = shift;
+	my ( $a, $b ) = @_;
+	$finishedA = $a;
 }
 
 sub finished_b
 {
-	$finishedB = shift;
+	my ( $a, $b ) = @_;
+	$finishedB = $b;
 }
 
 traverse_sequences(
