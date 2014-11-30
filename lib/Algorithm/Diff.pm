@@ -127,6 +127,13 @@ sub _longestCommonSubsequence
     my $keyGen   = shift;    # code ref
     my $compare;             # code ref
 
+    # Check for bogus (non-ref) argument values
+    if ( !ref($a) || !ref($b) )
+    {
+        my @callerInfo = caller(1);
+        die 'error: must pass array references to ' . $callerInfo[3];
+    }
+
     # set up code refs
     # Note that these are optimized.
     if ( !defined($keyGen) )    # optimize for strings
@@ -876,6 +883,11 @@ so would consider $person4 and $person4->clone() as equal.
 
 You may also pass additional parameters to the key generation function
 if you wish.
+
+=head1 ERROR CHECKING
+
+If you pass these routines a non-reference and they expect a reference,
+they will die with a message.
 
 =head1 AUTHOR
 
