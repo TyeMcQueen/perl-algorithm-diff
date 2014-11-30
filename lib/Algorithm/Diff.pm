@@ -9,7 +9,7 @@ $VERSION = sprintf('%d.%02d', (q$Revision: 1.15 $ =~ /\d+/g));
 require Exporter;
 *import    = \&Exporter::import;
 @EXPORT_OK = qw(
-    prepare LCS LCS_length
+    prepare LCS LCDidx LCS_length
     diff sdiff
     traverse_sequences traverse_balanced
 );
@@ -442,6 +442,16 @@ sub LCS_length
     return _longestCommonSubsequence( $a, $b, 1, @_ );
 }
 
+sub LCSidx
+{
+    my $a= shift @_;
+    my $b= shift @_;
+    my $match= _longestCommonSubsequence( $a, $b, 0, @_ );
+    my @am= grep defined $match->[$_], 0..$#$match;
+    my @bm= @{$match}[@am];
+    return \@am, \@bm;
+}
+
 sub diff
 {
     my $a      = shift;    # array ref
@@ -502,13 +512,15 @@ Algorithm::Diff - Compute `intelligent' differences between two files / lists
 =head1 SYNOPSIS
 
     use Algorithm::Diff qw(
-        LCS LCS_length
+        LCS LCS_length LCSidx
         diff sdiff
         traverse_sequences traverse_balanced );
 
     @lcs    = LCS( \@seq1, \@seq2 );
     $lcsref = LCS( \@seq1, \@seq2 );
     $count  = LCS_length( \@seq1, \@seq2 );
+
+    ( $seq1idxref, $seq2idxref ) = LCSidx( \@seq1, \@seq2 );
 
     @diffs  = diff( \@seq1, \@seq2 );
 
@@ -630,6 +642,20 @@ routine.
 This is just like C<LCS> except it only returns the length of the
 longest common subsequence.  This provides a performance gain of about
 9% compared to C<LCS>.
+
+=head2 C<LCSidx>
+
+Like C<LCS> except it returns references to two arrays.  The first array
+contains the indices into @seq1 where the LCS items are located.  The
+second array contains the indices into @seq2 where the LCS items are located.
+
+Therefore, the following three lists will contain the same values:
+
+    my( $idx1, $idx2 ) = LCSidx( \@seq1, \@seq2 );
+    my @list1 = @seq1[ @$idx1 ];
+    my @list2 = @seq2[ @$idx2 ];
+    my @list3 = LCS( \@seq1, \@seq2 );
+
 
 =head2 C<prepare>
 
