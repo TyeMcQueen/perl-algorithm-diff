@@ -552,6 +552,15 @@ sub traverse_sequences
 	# The last entry (if any) processed was a match.
 	# $ai and $bi point just past the last matching lines in their sequences.
 
+			if ( defined($finishedACallback) && $bi <= $lastB )
+			{
+				&$finishedACallback( $ai, @_ );
+			}
+			else
+			{
+				&$discardBCallback( $ai, $bi++, @_ ) while ( $bi <= $lastB );
+			}
+
 			if ( defined($finishedBCallback) && $ai <= $lastA )
 			{
 				&$finishedBCallback( $bi, @_ );
@@ -561,14 +570,6 @@ sub traverse_sequences
 				&$discardACallback( $ai++, $bi, @_ ) while ( $ai <= $lastA );
 			}
 
-			if ( defined($finishedACallback) && $bi <= $lastB )
-			{
-				&$finishedACallback( $ai, @_ );
-			}
-			else
-			{
-				&$discardBCallback( $ai, $bi++, @_ ) while ( $bi <= $lastB );
-			}
 	return 1;
 }
 
