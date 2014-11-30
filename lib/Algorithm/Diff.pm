@@ -803,14 +803,14 @@ Algorithm::Diff - Compute `intelligent' differences between two files / lists
         next   if  $diff->Same();
         my $sep = '';
         if(  ! $diff->Items(2)  ) {
-            sprintf "%d,%dd%d\n",
+            printf "%d,%dd%d\n",
                 $diff->Get(qw( Min1 Max1 Max2 ));
         } elsif(  ! $diff->Items(1)  ) {
-            sprint "%da%d,%d\n",
+            printf "%da%d,%d\n",
                 $diff->Get(qw( Max1 Min2 Max2 ));
         } else {
             $sep = "---\n";
-            sprintf "%d,%dc%d,%d\n",
+            printf "%d,%dc%d,%d\n",
                 $diff->Get(qw( Min1 Max1 Min2 Max2 ));
         }
         print "< $_"   for  $diff->Items(1);

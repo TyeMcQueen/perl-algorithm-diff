@@ -1,6 +1,7 @@
 Revision history for Perl module Algorithm::Diff.
 
 - Fix typo in @EXPORT_OK (s/LCDidx/LCSidx/) (RT 8576)
+- Use 'printf' in example code, not 'sprintf' nor 'sprint' (RT 16067)
 
 1.19 2004-09-22
 - Added OO interface.
