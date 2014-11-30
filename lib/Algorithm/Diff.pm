@@ -123,7 +123,7 @@ sub _replaceNextLargerWith
 sub _longestCommonSubsequence
 {
     my $a        = shift;    # array ref
-    my $b        = shift;    # array ref
+    my $b        = shift;    # array ref or hash ref
     my $keyGen   = shift;    # code ref
     my $compare;             # code ref
 
@@ -131,7 +131,7 @@ sub _longestCommonSubsequence
     if ( !ref($a) || !ref($b) )
     {
         my @callerInfo = caller(1);
-        die 'error: must pass array references to ' . $callerInfo[3];
+        die 'error: must pass array or hash references to ' . $callerInfo[3];
     }
 
     # set up code refs
@@ -153,6 +153,11 @@ sub _longestCommonSubsequence
     my ( $aStart, $aFinish, $matchVector ) = ( 0, $#$a, [] );
     my ( $bMatches ) = ( {} );
 
+    if ( ref($b) eq 'HASH' )    # was $bMatches prepared for us?
+    {
+        $bMatches = $b;
+    }
+    else
     {
         my ( $bStart, $bFinish ) = ( 0, $#$b );
 
