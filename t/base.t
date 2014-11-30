@@ -127,7 +127,7 @@ ok( "@matchedB", $correctResult);
 ok( "@discardsA", $skippedA);
 ok( "@discardsB", $skippedB);
 ok( $finishedA, 9, "index of finishedA" );
-ok( $finishedB, 9 );
+ok( $finishedB, undef, "index of finishedB" );
 
 my @lcs = LCS( \@a, \@b );
 ok( "@lcs", $correctResult );
