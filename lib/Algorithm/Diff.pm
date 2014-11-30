@@ -122,11 +122,18 @@ sub _replaceNextLargerWith
 
 sub _longestCommonSubsequence
 {
-    my $a        = shift;    # array ref
+    my $a        = shift;    # array ref or hash ref
     my $b        = shift;    # array ref or hash ref
     my $counting = shift;    # scalar
     my $keyGen   = shift;    # code ref
     my $compare;             # code ref
+
+    if ( ref($a) eq 'HASH' )
+    {                        # prepared hash must be in $b
+        my $tmp = $b;
+        $b = $a;
+        $a = $tmp;
+    }
 
     # Check for bogus (non-ref) argument values
     if ( !ref($a) || !ref($b) )
