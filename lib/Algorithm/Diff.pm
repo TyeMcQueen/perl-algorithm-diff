@@ -424,8 +424,23 @@ sub _longestCommonSubsequence
 {
 	my $a = shift;	# array ref
 	my $b = shift;	# array ref
-	my $keyGen = shift || sub { $_[0] };
-	my $compare = sub { &$keyGen( $_[0], @_ ) eq &$keyGen( $_[1], @_ ) };
+	my $keyGen = shift;	# code ref
+	my $compare;	# code ref
+
+	# set up code refs
+	# Note that these are optimized.
+	if ( !defined( $keyGen ) )	# optimize for strings
+	{
+		$keyGen = sub { $_[0] };
+		$compare = sub { my ($a, $b) = @_; $a eq $b };
+	}
+	else
+	{
+		$compare = sub {
+			my $a = shift; my $b = shift;
+			&$keyGen( $a, @_ ) eq &$keyGen( $b, @_ )
+		};
+	}
 
 	my( $aStart, $aFinish, $bStart, $bFinish ) = ( 0, $#$a, 0, $#$b );
 	my $matchVector = [];
@@ -447,8 +462,7 @@ sub _longestCommonSubsequence
 	}
 
 	# Now compute the equivalence classes of positions of elements
-	my $bMatches = _withPositionsOfInInterval( $b, $bStart, $bFinish,
-		$keyGen, @_ );
+	my $bMatches = _withPositionsOfInInterval( $b, $bStart, $bFinish, $keyGen, @_ );
 	my $thresh = [];
 	my $links = [];
 
@@ -498,13 +512,11 @@ sub traverse_sequences
 	my $a = shift;	# array ref
 	my $b = shift;	# array ref
 	my $callbacks = shift || { };
-	my $compare = shift;
 	my $keyGen = shift;
 	my $matchCallback = $callbacks->{'MATCH'} || sub { };
 	my $discardACallback = $callbacks->{'DISCARD_A'} || sub { };
 	my $discardBCallback = $callbacks->{'DISCARD_B'} || sub { };
-	my $matchVector = _longestCommonSubsequence( $a, $b,
-		$compare, $keyGen, @_ );
+	my $matchVector = _longestCommonSubsequence( $a, $b, $keyGen, @_ );
 	# Process all the lines in match vector
 	my $lastA = $#$a;
 	my $lastB = $#$b;
