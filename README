@@ -4,15 +4,6 @@ algorithm similar to (or identical to) the one used by the Unix "diff"
 program.  It is guaranteed to find the *smallest possible* set of
 differences.
 
-It was originally written by Mark-Jason Dominus,
-mjd-perl-diff@plover.com and was re-written and is now being maintained
-by Ned Konz, perl@bike-nomad.com.
-
-Mark-Jason still maintains a mailing list.
-To join a low-volume mailing list for announcements related to diff
-and Algorithm::Diff, send an empty mail message to
-mjd-perl-diff-request@plover.com.
-
 This package contains a few parts.
 
 Algorithm::Diff is the module that contains several interfaces for which
@@ -59,6 +50,12 @@ This code was adapted from the Smalltalk code of Mario Wolczko
 ftp://st.cs.uiuc.edu/pub/Smalltalk/MANCHESTER/manchester/4.0/diff.st
 
 THANKS SECTION
+
+Thanks to Ned Konz's for rewriting the module to greatly improve
+performance, for maintaining it over the years, and for readilly handing
+it over to me so I could plod along with my improvements.
+
+(From Ned Konz's earlier versions):
 
 Thanks to Mark-Jason Dominus for doing the original Perl version and
 maintaining it over the last couple of years. Mark-Jason has been a huge

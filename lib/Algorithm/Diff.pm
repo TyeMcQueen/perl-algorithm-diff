@@ -17,6 +17,7 @@ $VERSION = sprintf('%d.%02d', (q$Revision: 1.15 $ =~ /\d+/g));
 # McIlroy-Hunt diff algorithm
 # Adapted from the Smalltalk code of Mario I. Wolczko, <mario@wolczko.com>
 # by Ned Konz, perl@bike-nomad.com
+# Updates by Tye McQueen, http://perlmonks.org/?node=tye
 
 # Create a hash that maps each element of $aCollection to the set of
 # positions it occupies in $aCollection, restricted to the elements
@@ -878,14 +879,21 @@ if you wish.
 
 =head1 AUTHOR
 
-This version by Ned Konz, perl@bike-nomad.com
+This version released by Tye McQueen (http://perlmonks.org/?node=tye).
 
 =head1 LICENSE
 
-Copyright (c) 2000-2002 Ned Konz.  All rights reserved.
+Parts Copyright (c) 2000-2004 Ned Konz.  All rights reserved.
+Parts by Tye McQueen.
 
 This program is free software; you can redistribute it and/or modify it
 under the same terms as Perl.
+
+=head1 MAILING LIST
+
+Mark-Jason still maintains a mailing list.  To join a low-volume mailing
+list for announcements related to diff and Algorithm::Diff, send an
+empty mail message to mjd-perl-diff-request@plover.com.
 
 =head1 CREDITS
 
@@ -907,5 +915,9 @@ The algorithm is that described in
 I<A Fast Algorithm for Computing Longest Common Subsequences>,
 CACM, vol.20, no.5, pp.350-353, May 1977, with a few
 minor improvements to improve the speed.
+
+Much work was done by Ned Konz (perl@bike-nomad.com).
+
+The OO interface and some other changes are by Tye McQueen.
 
 =cut
