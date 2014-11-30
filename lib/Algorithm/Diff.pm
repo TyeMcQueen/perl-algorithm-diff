@@ -401,6 +401,13 @@ if you wish.
 
 This version by Ned Konz, perl@bike-nomad.com
 
+=head1 LICENSE
+
+Copyright (c) 2000-2002 Ned Konz.  All rights reserved.
+This program is free software;
+you can redistribute it and/or modify it under the same terms
+as Perl itself.
+
 =head1 CREDITS
 
 Versions through 0.59 (and much of this documentation) were written by:
