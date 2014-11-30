@@ -7,7 +7,7 @@ require Exporter;
 @ISA = qw(Exporter);
 @EXPORT = qw();
 @EXPORT_OK = qw(LCS diff traverse_sequences);
-$VERSION = sprintf('%d.%02d', (q$Revision: 1.6 $ =~ /\d+/g));
+$VERSION = sprintf('%d.%02d', (q$Revision: 1.10 $ =~ /\d+/g));
 
 # McIlroy-Hunt diff algorithm
 # Adapted from the Smalltalk code of Mario I. Wolczko, <mario@wolczko.com>
