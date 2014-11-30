@@ -5,7 +5,10 @@ use strict;
 use integer;    # see below in _replaceNextLargerWith() for mod to make
                 # if you don't use this
 use vars qw( $VERSION @EXPORT_OK );
-$VERSION = sprintf('%d.%02d', (q$Revision: 1.15 $ =~ /\d+/g));
+$VERSION = 1.19_01;
+#          ^ ^^ ^^-- Incremented at will
+#          | \+----- Incremented for non-trivial changes to features
+#          \-------- Incremented for fundamental changes
 require Exporter;
 *import    = \&Exporter::import;
 @EXPORT_OK = qw(
