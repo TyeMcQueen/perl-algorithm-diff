@@ -208,9 +208,12 @@ callback which specifies the callback functions, like this:
                        DISCARD_B => $callback_3,
                      } );
 
-Callbacks are invoked with at least the
+Callbacks for MATCH, DISCARD_A, and DISCARD_B are invoked with at least the
 indices of the two arrows as their arguments.  They are not expected to return
 any values.  If a callback is omitted from the table, it is not called.
+
+Callbacks for A_FINISHED and B_FINISHED are invoked with at least the
+corresponding index in A or B,
 
 If arrow A reaches the end of its sequence, before arrow B does,
 C<traverse_sequences> will call the C<A_FINISHED> callback when it advances
