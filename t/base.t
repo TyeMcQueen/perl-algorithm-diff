@@ -47,7 +47,7 @@ my $correctDiffResult = [
 
 # Result of LCS must be as long as @a
 my @result = Algorithm::Diff::_longestCommonSubsequence( \@a, \@b );
-ok( scalar(@result),
+ok( scalar(grep { defined } @result),
 	scalar(@correctResult),
 	"length of _longestCommonSubsequence" );
 
