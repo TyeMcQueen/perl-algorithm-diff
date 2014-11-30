@@ -124,8 +124,8 @@ traverse_sequences(
 
 ok( "@matchedA", $correctResult);
 ok( "@matchedB", $correctResult);
-ok( "@discardsA", 'a h');
-ok( "@discardsB", 'd f k');
+ok( "@discardsA", $skippedA);
+ok( "@discardsB", $skippedB);
 ok( $finishedA, 8 );
 ok( $finishedB, 9 );
 
