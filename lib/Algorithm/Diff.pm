@@ -471,7 +471,7 @@ sub _longestCommonSubsequence
 	my ( $i, $ai, $j, $k );
 	for ( $i = $aStart; $i <= $aFinish; $i++ )
 	{
-		$ai = &$keyGen( $a->[ $i ] );
+		$ai = &$keyGen( $a->[ $i ], @_ );
 		if ( exists( $bMatches->{ $ai } ) )
 		{
 			$k = 0;
