@@ -10,7 +10,7 @@ require Exporter;
 *import    = \&Exporter::import;
 @EXPORT_OK = qw(
     prepare LCS LCDidx LCS_length
-    diff sdiff
+    diff sdiff compact_diff
     traverse_sequences traverse_balanced
 );
 
@@ -452,6 +452,31 @@ sub LCSidx
     return \@am, \@bm;
 }
 
+sub compact_diff
+{
+    my $a= shift @_;
+    my $b= shift @_;
+    my( $am, $bm )= LCSidx( $a, $b, @_ );
+    my @cdiff;
+    my( $ai, $bi )= ( 0, 0 );
+    push @cdiff, $ai, $bi;
+    while( 1 ) {
+        while(  @$am  &&  $ai == $am->[0]  &&  $bi == $bm->[0]  ) {
+            shift @$am;
+            shift @$bm;
+            ++$ai, ++$bi;
+        }
+        push @cdiff, $ai, $bi;
+        last   if  ! @$am;
+        $ai = $am->[0];
+        $bi = $bm->[0];
+        push @cdiff, $ai, $bi;
+    }
+    push @cdiff, 0+@$a, 0+@$b
+        if  $ai < @$a || $bi < @$b;
+    return wantarray ? @cdiff : \@cdiff;
+}
+
 sub diff
 {
     my $a      = shift;    # array ref
@@ -513,7 +538,7 @@ Algorithm::Diff - Compute `intelligent' differences between two files / lists
 
     use Algorithm::Diff qw(
         LCS LCS_length LCSidx
-        diff sdiff
+        diff sdiff compact_diff
         traverse_sequences traverse_balanced );
 
     @lcs    = LCS( \@seq1, \@seq2 );
@@ -525,6 +550,8 @@ Algorithm::Diff - Compute `intelligent' differences between two files / lists
     @diffs  = diff( \@seq1, \@seq2 );
 
     @sdiffs = sdiff( \@seq1, \@seq2 );
+
+    @cdiffs = compact_diff( \@seq1, \@seq2 );
 
     traverse_sequences(
         \@seq1,
@@ -790,6 +817,121 @@ FUNCTIONS>.
 
 Additional parameters, if any, will be passed to the key generation
 routine.
+
+=head2 C<compact_diff>
+
+C<compact_diff> is much like C<sdiff> except it returns a much more
+compact description consisting of just one flat list of indices.  An
+example helps explain the format:
+
+    my @a = qw( a b c   e  h j   l m n p      );
+    my @b = qw(   b c d e f  j k l m    r s t );
+    @cdiff = compact_diff( \@a, \@b );
+    # Returns:
+    #   @a      @b       @a       @b
+    #  start   start   values   values
+    (    0,      0,   #       =
+         0,      0,   #    a  !
+         1,      0,   #  b c  =  b c
+         3,      2,   #       !  d
+         3,      3,   #    e  =  e
+         4,      4,   #    f  !  h
+         5,      5,   #    j  =  j
+         6,      6,   #       !  k
+         6,      7,   #  l m  =  l m
+         8,      9,   #  n p  !  r s t
+        10,     12,   #
+    );
+
+The 0th, 2nd, 4th, etc. entries are all indices into @seq1 (@a in the
+above example) indicating where a hunk begins.  The 1st, 3rd, 5th, etc.
+entries are all indices into @seq2 (@b in the above example) indicating
+where the same hunk begins.
+
+So each pair of indices (except the last pair) describes where a hunk
+begins (in each sequence).  Since each hunk must end at the item just
+before the item that starts the next hunk, the next pair of indices can
+be used to determine where the hunk ends.
+
+So, the first 4 entries (0..3) describe the first hunk.  Entries 0 and 1
+describe where the first hunk begins (and so are always both 0).
+Entries 2 and 3 describe where the next hunk begins, so subtracting 1
+from each tells us where the first hunk ends.  That is, the first hunk
+contains items C<$diff[0]> through C<$diff[2] - 1> of the first sequence
+and contains items C<$diff[1]> through C<$diff[3] - 1> of the second
+sequence.
+
+In other words, the first hunk consists of the following two lists of items:
+
+               #  1st pair     2nd pair
+               # of indices   of indices
+    @list1 = @a[ $cdiff[0] .. $cdiff[2]-1 ];
+    @list2 = @b[ $cdiff[1] .. $cdiff[3]-1 ];
+               # Hunk start   Hunk end
+
+Note that the hunks will always alternate between those that are part of
+the LCS (those that contain unchanged items) and those that contain
+changes.  This means that all we need to be told is whether the first
+hunk is a 'same' or 'diff' hunk and we can determine which of the other
+hunks contain 'same' items or 'diff' items.
+
+By convention, we always make the first hunk contain unchanged items.
+So the 1st, 3rd, 5th, etc. hunks (all odd-numbered hunks if you start
+counting from 1) all contain unchanged items.  And the 2nd, 4th, 6th,
+etc. hunks (all even-numbered hunks if you start counting from 1) all
+contain changed items.
+
+Since @a and @b don't begin with the same value, the first hunk in our
+example is empty (otherwise we'd violate the above convention).  Note
+that the first 4 index values in our example are all zero.  Plug these
+values into our previous code block and we get:
+
+    @hunk1a = @a[ 0 .. 0-1 ];
+    @hunk1b = @b[ 0 .. 0-1 ];
+
+And C<0..-1> returns the empty list.
+
+Move down one pair of indices (2..5) and we get the offset ranges for
+the second hunk, which contains changed items.
+
+Since C<@diff[2..5]> contains (0,0,1,0) in our example, the second hunk
+consists of these two lists of items:
+
+        @hunk2a = @a[ $cdiff[2] .. $cdiff[4]-1 ];
+        @hunk2b = @b[ $cdiff[3] .. $cdiff[5]-1 ];
+    # or
+        @hunk2a = @a[ 0 .. 1-1 ];
+        @hunk2b = @b[ 0 .. 0-1 ];
+    # or
+        @hunk2a = @a[ 0 .. 0 ];
+        @hunk2b = @b[ 0 .. -1 ];
+    # or
+        @hunk2a = ( 'a' );
+        @hunk2b = ( );
+
+That is, we would delete item 0 ('a') from @a.
+
+Since C<@diff[4..7]> contains (1,0,3,2) in our example, the third hunk
+consists of these two lists of items:
+
+        @hunk3a = @a[ $cdiff[4] .. $cdiff[6]-1 ];
+        @hunk3a = @b[ $cdiff[5] .. $cdiff[7]-1 ];
+    # or
+        @hunk3a = @a[ 1 .. 3-1 ];
+        @hunk3a = @b[ 0 .. 2-1 ];
+    # or
+        @hunk3a = @a[ 1 .. 2 ];
+        @hunk3a = @b[ 0 .. 1 ];
+    # or
+        @hunk3a = qw( b c );
+        @hunk3a = qw( b c );
+
+Note that this third hunk contains unchanged items as our convention demands.
+
+You can continue this process until you reach the last two indices,
+which will always be the number of items in each sequence.  This is
+required so that subtracting one from each will give you the indices to
+the last items in each sequence.
 
 =head2 C<traverse_sequences>
 
