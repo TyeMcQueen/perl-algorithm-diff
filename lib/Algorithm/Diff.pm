@@ -396,9 +396,9 @@ sub _replaceNextLargerWith
 			$high = $index - 1;
 		}
 	}
+
 	# now insertion point is in $low.
 	return undef if $array->[ $low ] == $aValue;	# same?
-
 	$array->[ $low ] = $aValue;		# overwrite next larger
 	return $low;
 }
@@ -442,7 +442,7 @@ sub _longestCommonSubsequence
 		};
 	}
 
-	my( $aStart, $aFinish, $bStart, $bFinish ) = ( 0, $#$a, 0, $#$b );
+	my ($aStart, $aFinish, $bStart, $bFinish) = (0, $#$a, 0, $#$b);
 	my $matchVector = [];
 
 	# First we prune off any common elements at the beginning
@@ -480,12 +480,13 @@ sub _longestCommonSubsequence
 					and $thresh->[ $k ] > $j
 					and $thresh->[ $k - 1 ] < $j )
 				{
-					$thresh->[ $k ] = $j
+					$thresh->[ $k ] = $j;
 				}
 				else
 				{
-					$k = _replaceNextLargerWith( $thresh, $j )
+					$k = _replaceNextLargerWith( $thresh, $j );
 				}
+
 				# oddly, it's faster to always test this (CPU cache?).
 				if ( defined( $k ) )
 				{
