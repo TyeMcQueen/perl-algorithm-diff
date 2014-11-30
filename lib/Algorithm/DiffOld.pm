@@ -2,7 +2,8 @@
 # like versions <= 0.59 used to.
 # $Revision: 1.3 $
 
-package Algorithm::DiffOld;
+package # don't index
+    Algorithm::DiffOld;
 use strict;
 use vars qw($VERSION @EXPORT_OK @ISA @EXPORT);
 use integer;		# see below in _replaceNextLargerWith() for mod to make
