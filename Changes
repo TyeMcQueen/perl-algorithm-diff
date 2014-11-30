@@ -1,28 +1,23 @@
 Revision history for Perl extension Algorithm::Diff.
 
 1.06 Wed Jun 14 14:15:31 PDT 2000
-
-First CPAN version by NEDKONZ
-
-Added MJD's list info to README
+- First CPAN version by NEDKONZ
+- Added MJD's list info to README
 
 1.05 Sun Jun 11 15:17:05 PDT 2000
-
-Changed version label string.
-
-Put MJD's PPT diff version into this distribution as diffnew.pl
+- Changed version label string.
+- Put MJD's PPT diff version into this distribution as diffnew.pl
 
 1.04 Added documentation. 
 
 1.03 Working version
 
 1.01 First version by Ned Konz.
+- Total re-write to cure problems with memory usage and speed.
+  Now takes only a few seconds and less than three megabytes
+  to compare two 4000-line files.
 
-Total re-write to cure problems with memory usage and speed.
-Now takes only a few seconds and less than three megabytes
-to compare two 4000-line files.
-
-Changed optional callback function reference from being equality
-function to being key (hash) generation function.
+- Changed optional callback function reference from being equality
+  function to being key (hash) generation function.
 
 0.59 Last version maintained by Mark-Jason Dominus
