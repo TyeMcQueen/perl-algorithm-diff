@@ -185,7 +185,7 @@ sub _longestCommonSubsequence
 		# that matches $a->[ $i ], in reverse order
 		for ($j = $bFinish; $j >= $bStart; $j--)
 		{
-			next if ! &$compare( $a->[$i], $b->[$j] );
+			next if ! &$compare( $a->[$i], $b->[$j], @_ );
 			# optimization: most of the time this will be true
 			if ( $k
 				and $thresh->[ $k ] > $j
