@@ -746,6 +746,22 @@ FUNCTIONS>.
 
 Additional parameters, if any, will be passed to the key generation function.
 
+If you want to pass additional parameters to your callbacks, but don't
+need a custom key generation function, you can get the default by
+passing undef:
+
+    traverse_sequences(
+        \@seq1, \@seq2,
+        {   MATCH => $callback_1,
+            DISCARD_A => $callback_2,
+            DISCARD_B => $callback_3,
+        },
+        undef,     # default key-gen
+        $myArgument1,
+        $myArgument2,
+        $myArgument3,
+    );
+
 C<traverse_sequences> does not have a useful return value; you are
 expected to plug in the appropriate behavior with the callback
 functions.
