@@ -1,5 +1,7 @@
 Revision history for Perl module Algorithm::Diff.
 
+- Fix typo in @EXPORT_OK (s/LCDidx/LCSidx/) (RT 8576)
+
 1.19 2004-09-22
 - Added OO interface.
 - Based on Ned's v1.18 (unreleased)

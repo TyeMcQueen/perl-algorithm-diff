@@ -12,7 +12,7 @@ $VERSION = 1.19_01;
 require Exporter;
 *import    = \&Exporter::import;
 @EXPORT_OK = qw(
-    prepare LCS LCDidx LCS_length
+    prepare LCS LCSidx LCS_length
     diff sdiff compact_diff
     traverse_sequences traverse_balanced
 );
