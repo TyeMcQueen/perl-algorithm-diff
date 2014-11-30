@@ -472,21 +472,24 @@ Algorithm::Diff - Compute `intelligent' differences between two files / lists
     traverse_sequences(
         \@seq1,
         \@seq2,
-        {   MATCH     => $callback,
-            DISCARD_A => $callback,
-            DISCARD_B => $callback,
+        {   MATCH     => \&callback1,
+            DISCARD_A => \&callback2,
+            DISCARD_B => \&callback3,
         },
-        $key_generation_function,
+        \&key_generator,
+        @extra_args,
     );
 
     traverse_balanced(
         \@seq1,
         \@seq2,
-        {   MATCH     => $callback,
-            DISCARD_A => $callback,
-            DISCARD_B => $callback,
-            CHANGE    => $callback,
+        {   MATCH     => \&callback1,
+            DISCARD_A => \&callback2,
+            DISCARD_B => \&callback3,
+            CHANGE    => \&callback4,
         },
+        \&key_generator,
+        @extra_args,
     );
 
 
@@ -495,7 +498,7 @@ Algorithm::Diff - Compute `intelligent' differences between two files / lists
 (by Mark-Jason Dominus)
 
 I once read an article written by the authors of C<diff>; they said
-that they hard worked very hard on the algorithm until they found the
+that they worked very hard on the algorithm until they found the
 right one.
 
 I think what they ended up using (and I hope someone will correct me,
@@ -543,7 +546,15 @@ is C<a x b y c z>:
           a x b y c z p d q
     a b c a x b y c z
 
+or
+
+    a       x b y c z p d q
+    a b c a x b y c z
+
 =head1 USAGE
+
+(See also the README file and several example
+scripts include with this module.)
 
 This module provides three exportable functions, which we'll
 deal with in ascending order of difficulty: C<LCS>,
@@ -563,8 +574,8 @@ C<LCS> may be passed an optional third parameter; this is a CODE
 reference to a key generation function.  See L</KEY GENERATION
 FUNCTIONS>.
 
-    @lcs    = LCS( \@seq1, \@seq2, $keyGen );
-    $lcsref = LCS( \@seq1, \@seq2, $keyGen );
+    @lcs    = LCS( \@seq1, \@seq2, \&keyGen, @args );
+    $lcsref = LCS( \@seq1, \@seq2, \&keyGen, @args );
 
 Additional parameters, if any, will be passed to the key generation
 routine.
@@ -578,17 +589,21 @@ C<diff> computes the smallest set of additions and deletions necessary
 to turn the first sequence into the second, and returns a description
 of these changes.  The description is a list of I<hunks>; each hunk
 represents a contiguous section of items which should be added,
-deleted, or replaced.  The return value of C<diff> is a list of
-hunks, or, in scalar context, a reference to such a list.
+deleted, or replaced.  (Hunks containing unchanged items are not
+included.)
 
-Here is an example:  The diff of the following two sequences:
+The return value of C<diff> is a list of hunks, or, in scalar context, a
+reference to such a list.  If there are no differences, the list will be
+empty.
+
+Here is an example.  Calling C<diff> for the following two sequences:
 
     a b c e h j l m n p
     b c d e f j k l m r s t
 
-Result:
+would produce the following list:
 
-    [
+    (
       [ [ '-', 0, 'a' ] ],
 
       [ [ '+', 2, 'd' ] ],
@@ -603,14 +618,14 @@ Result:
         [ '+',  9, 'r' ],
         [ '+', 10, 's' ],
         [ '+', 11, 't' ] ],
-    ]
+    )
 
 There are five hunks here.  The first hunk says that the C<a> at
 position 0 of the first sequence should be deleted (C<->).  The second
 hunk says that the C<d> at position 2 of the second sequence should
 be inserted (C<+>).  The third hunk says that the C<h> at position 4
 of the first sequence should be removed and replaced with the C<f>
-from position 4 of the second sequence.  The other two hunks similarly.
+from position 4 of the second sequence.  And so on.
 
 C<diff> may be passed an optional third parameter; this is a CODE
 reference to a key generation function.  See L</KEY GENERATION
@@ -635,12 +650,13 @@ Unix-utility I<sdiff> does:
 
 It returns a list of array refs, each pointing to an array of
 display instructions. In scalar context it returns a reference
-to such a list.
+to such a list. If there are no differences, the list will have one
+entry per item, each indicating that the item was unchanged.
 
 Display instructions consist of three elements: A modifier indicator
 (C<+>: Element added, C<->: Element removed, C<u>: Element unmodified,
 C<c>: Element changed) and the value of the old and new elements, to
-be displayed side by side.
+be displayed side-by-side.
 
 An C<sdiff> of the following two sequences:
 
@@ -649,7 +665,7 @@ An C<sdiff> of the following two sequences:
 
 results in
 
-    [ [ '-', 'a', ''  ],
+    ( [ '-', 'a', ''  ],
       [ 'u', 'b', 'b' ],
       [ 'u', 'c', 'c' ],
       [ '+', '',  'd' ],
@@ -662,7 +678,7 @@ results in
       [ 'c', 'n', 'r' ],
       [ 'c', 'p', 's' ],
       [ '+', '',  't' ],
-    ]
+    )
 
 C<sdiff> may be passed an optional third parameter; this is a CODE
 reference to a key generation function.  See L</KEY GENERATION
@@ -673,8 +689,8 @@ routine.
 
 =head2 C<traverse_sequences>
 
-C<traverse_sequences> is the most general facility provided by this
-module; C<diff> and C<LCS> are implemented as calls to it.
+C<traverse_sequences> is the most general facility provided by
+this module; C<diff> and C<LCS> are implemented as calls to it.
 
 Imagine that there are two arrows.  Arrow A points to an element of
 sequence A, and arrow B points to an element of the sequence B. 
@@ -726,9 +742,13 @@ At present there is no way to fail.
 
 C<traverse_sequences> may be passed an optional fourth parameter; this
 is a CODE reference to a key generation function.  See L</KEY GENERATION
-FUNCTIONS>.  
+FUNCTIONS>.
 
 Additional parameters, if any, will be passed to the key generation function.
+
+C<traverse_sequences> does not have a useful return value; you are
+expected to plug in the appropriate behavior with the callback
+functions.
 
 =head2 C<traverse_balanced>
 
@@ -743,7 +763,7 @@ In addition to the C<DISCARD_A>, C<DISCARD_B>, and C<MATCH> callbacks
 supported by C<traverse_sequences>, C<traverse_balanced> supports
 a C<CHANGE> callback indicating that one element got C<replaced> by another:
 
-    traverse_sequences(
+    traverse_balanced(
         \@seq1, \@seq2,
         {   MATCH => $callback_1,
             DISCARD_A => $callback_2,
@@ -763,10 +783,12 @@ noticable only while processing huge amounts of data.
 The C<sdiff> function of this module 
 is implemented as call to C<traverse_balanced>.
 
+C<traverse_balanced> does not have a useful return value; you are expected to
+plug in the appropriate behavior with the callback functions.
+
 =head1 KEY GENERATION FUNCTIONS
 
-C<diff>, C<LCS>, and C<traverse_sequences>
-accept an optional last parameter.  This is a
+Most of the functions accept an optional extra parameter.  This is a
 CODE reference to a key generating (hashing) function that should return
 a string that uniquely identifies a given element.  It should be the
 case that if two elements are to be considered equal, their keys should
@@ -847,7 +869,7 @@ This version by Ned Konz, perl@bike-nomad.com
 Copyright (c) 2000-2002 Ned Konz.  All rights reserved.
 
 This program is free software; you can redistribute it and/or modify it
-under the same terms as Perl itself.
+under the same terms as Perl.
 
 =head1 CREDITS
 
@@ -855,8 +877,8 @@ Versions through 0.59 (and much of this documentation) were written by:
 
 Mark-Jason Dominus, mjd-perl-diff@plover.com
 
-This version borrows the documentation and names of the routines from
-Mark-Jason's, but has all new code in Diff.pm.
+This version borrows some documentation and routine names from
+Mark-Jason's, but Diff.pm's code was completely replaced.
 
 This code was adapted from the Smalltalk code of Mario Wolczko
 <mario@wolczko.com>, which is available at

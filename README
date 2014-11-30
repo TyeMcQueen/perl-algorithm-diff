@@ -1,6 +1,6 @@
 This is a module for computing the difference between two files, two
 strings, or any other two lists of things.  It uses an intelligent
-algorithm similar to (or identical to) the one used by the Unix `diff'
+algorithm similar to (or identical to) the one used by the Unix "diff"
 program.  It is guaranteed to find the *smallest possible* set of
 differences.
 
@@ -15,45 +15,35 @@ mjd-perl-diff-request@plover.com.
 
 This package contains a few parts.
 
-Algorithm::Diff
-Module that contains the `diff' function, which computes the
-differences betwen two lists and returns a data structure that
-represents these differences.  You can then use the data
-structure to generate a formatted output in whatever format you
-like.
+Algorithm::Diff is the module that contains several interfaces for which
+computing the differences betwen two lists.
 
-The `diff' programs included in this package use
-Algorithm::Diff::diff to find the differences, and then they just
-format the output.
+The several "diff" programs also included in this package use
+Algorithm::Diff to find the differences and then they format the output.
 
-Algorithm::Diff also includes some other useful functions such as `LCS',
+Algorithm::Diff also includes some other useful functions such as "LCS",
 which computes the longest common subsequence of two lists.
 
-A::D is suitable for many other uses.  For example, you could
-use it for finding the smallest
+A::D is suitable for many uses.  You can use it for finding the smallest
 set of differences between two strings, or for computing the most
-efficient way to update the screen if you were replacing `curses'.
+efficient way to update the screen if you were replacing "curses".
 
-Algorithm::DiffOld
-An alternative module for those of you who HAVE to have the
-old interface (which uses a comparision function rather
-than a key generating function). Note that this is many times (20?)
-slower than Algorithm::Diff, because it has to do M*N comparisons
-rather than M+N key generations or so for Algorithm::Diff.
+Algorithm::DiffOld is a previous version of the module which is included
+primarilly for those wanting to use a custom comparison function rather
+than a key generating function (and who don't mind the significant
+performance penalty of perhaps 20-fold).
 
-diff.pl
-Implementation of `diff' in Perl that is as simple as
-possible so that you can see how it works.  The output
-format is not compatible with regular `diff'.
+diff.pl implements a "diff" in Perl that is as simple as (was
+previously) possible so that you can see how it works.  The output
+format is not compatible with regular "diff".  It needs to be
+reimplemented using the OO interface to greatly simplify the code.
 
-diffnew.pl
-Implementation of Unix `diff' in Perl with full bells and whistles. By
+diffnew.pl implements a "diff" in Perl with full bells and whistles.  By
 Mark-Jason, with code from cdiff.pl included.
 
-cdiff.pl
-`diff' that generates real context diffs in either
+cdiff.pl implements "diff" that generates real context diffs in either
 traditional format or GNU unified format.  Original contextless
-`context' diff supplied by Christian Murphy.  Modifications to make it
+"context" diff supplied by Christian Murphy.  Modifications to make it
 into a real full-featured diff with -c and -u options supplied by Amir
 D. Karger.
 
@@ -61,7 +51,7 @@ Yes, you can use this program to generate patches.
 
 OTHER RESOURCES
 
-`Longest Common Subsequences', at
+"Longest Common Subsequences", at
 http://www.ics.uci.edu/~eppstein/161/960229.html
 
 This code was adapted from the Smalltalk code of Mario Wolczko
@@ -86,9 +76,9 @@ distribution.
 (From Mark-Jason Dominus' earlier versions):
 
 Huge thanks to Amir Karger for adding full context diff supprt to
-`cdiff.pl', and then for waiting patiently for five months while I let
+"cdiff.pl", and then for waiting patiently for five months while I let
 it sit in a closet and didn't release it.  Thank you thank you thank
 you, Amir!
 
 Thanks to Christian Murphy for adding the first context diff format
-support to `cdiff.pl'.
+support to "cdiff.pl".

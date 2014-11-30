@@ -1,4 +1,4 @@
-Revision history for Perl extension Algorithm::Diff.
+Revision history for Perl module Algorithm::Diff.
 
 1.13 Sun Mar 24 16:05:32 PST 2002
 - sdiff and traverse_balanced added by Mike Schilli <m@perlmeister.com>.
