@@ -1,18 +1,18 @@
 package Algorithm::Diff;
 # Skip to first "=head" line for documentation.
 use strict;
-use vars qw($VERSION @EXPORT_OK @ISA @EXPORT);
+
 use integer;    # see below in _replaceNextLargerWith() for mod to make
                 # if you don't use this
+use vars qw( $VERSION @EXPORT_OK );
+$VERSION = sprintf('%d.%02d', (q$Revision: 1.15 $ =~ /\d+/g));
 require Exporter;
-@ISA       = qw(Exporter);
-@EXPORT    = qw();
+*import    = \&Exporter::import;
 @EXPORT_OK = qw(
     LCS
     diff sdiff
     traverse_sequences traverse_balanced
 );
-$VERSION = sprintf('%d.%02d', (q$Revision: 1.15 $ =~ /\d+/g));
 
 # McIlroy-Hunt diff algorithm
 # Adapted from the Smalltalk code of Mario I. Wolczko, <mario@wolczko.com>
