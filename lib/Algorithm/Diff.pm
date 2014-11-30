@@ -370,8 +370,7 @@ sub _withPositionsOfInInterval
 
 sub _replaceNextLargerWith
 {
-	my $array = shift;	# array ref
-	my $aValue = shift;	# numeric
+	my ( $array, $aValue ) = @_;
 	my $high = $#$array;
 
 	# off the end?
@@ -442,8 +441,7 @@ sub _longestCommonSubsequence
 		};
 	}
 
-	my ($aStart, $aFinish, $bStart, $bFinish) = (0, $#$a, 0, $#$b);
-	my $matchVector = [];
+	my ($aStart, $aFinish, $bStart, $bFinish, $matchVector) = (0, $#$a, 0, $#$b, []);
 
 	# First we prune off any common elements at the beginning
 	while ( $aStart <= $aFinish
