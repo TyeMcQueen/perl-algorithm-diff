@@ -498,7 +498,7 @@ sub diff
     };
     my $match = sub {
         push @$retval, $hunk
-            if scalar(@$hunk);
+            if 0 < @$hunk;
         $hunk = []
     };
     traverse_sequences( $a, $b,
