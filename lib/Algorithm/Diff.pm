@@ -409,8 +409,8 @@ sub _replaceNextLargerWith
 # This method computes the longest common subsequence in $a and $b.
 
 # Result is array or ref, whose contents is such that
-# 	$a->[ $i ] = $b->[ $result[ $i ] ]
-# foreach $i in ( 0..scalar( @result ) if $result[ $i ] is defined.
+# 	$a->[ $i ] == $b->[ $result[ $i ] ]
+# foreach $i in ( 0 .. $#result ) if $result[ $i ] is defined.
 
 # An additional argument may be passed; this is a hash or key generating
 # function that should return a string that uniquely identifies the given
@@ -525,10 +525,11 @@ sub traverse_sequences
 	my $lastB = $#$b;
 	my $bi = 0;
 	my $ai;
+
 	for ( $ai = 0; $ai <= $#$matchVector; $ai++ )
 	{
 		my $bLine = $matchVector->[ $ai ];
-		if ( defined( $bLine ) )
+		if ( defined( $bLine ) )	# matched
 		{
 			&$discardBCallback( $ai, $bi++, @_ ) while $bi < $bLine;
 			&$matchCallback( $ai, $bi++, @_ );
@@ -538,6 +539,7 @@ sub traverse_sequences
 			&$discardACallback( $ai, $bi, @_ );
 		}
 	}
+	# the last entry (if any) processed was a match.
 
 	&$discardACallback( $ai++, $bi, @_ ) while ( $ai <= $lastA );
 	&$discardBCallback( $ai, $bi++, @_ ) while ( $bi <= $lastB );
