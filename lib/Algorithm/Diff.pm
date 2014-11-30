@@ -383,10 +383,12 @@ sub _replaceNextLargerWith
 	# binary search for insertion point...
 	my $low = 0;
 	my $index;
+	my $found;
 	while ( $low <= $high )
 	{
 		$index = ( $high + $low ) / 2;
-		if ( $aValue > $array->[ $index ] )
+		$found = $array->[ $index ];
+		if ( $aValue > $found )
 		{
 			$low = $index + 1;
 		}
