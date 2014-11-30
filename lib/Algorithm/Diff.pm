@@ -518,7 +518,9 @@ sub traverse_sequences
 	my $keyGen = shift;
 	my $matchCallback = $callbacks->{'MATCH'} || sub { };
 	my $discardACallback = $callbacks->{'DISCARD_A'} || sub { };
+	my $finishedACallback = $callbacks->{'A_FINISHED'};
 	my $discardBCallback = $callbacks->{'DISCARD_B'} || sub { };
+	my $finishedBCallback = $callbacks->{'B_FINISHED'};
 	my $matchVector = _longestCommonSubsequence( $a, $b, $keyGen, @_ );
 	# Process all the lines in match vector
 	my $lastA = $#$a;
@@ -541,8 +543,23 @@ sub traverse_sequences
 	}
 	# the last entry (if any) processed was a match.
 
-	&$discardACallback( $ai++, $bi, @_ ) while ( $ai <= $lastA );
-	&$discardBCallback( $ai, $bi++, @_ ) while ( $bi <= $lastB );
+	if ( defined( $finishedBCallback ) && $ai <= $lastA )
+	{
+		&$finishedBCallback( $bi, @_ );
+	}
+	else
+	{
+		&$discardACallback( $ai++, $bi, @_ ) while ( $ai <= $lastA );
+	}
+
+	if ( defined( $finishedACallback ) && $bi <= $lastB )
+	{
+		&$finishedACallback( $ai, @_ );
+	}
+	else
+	{
+		&$discardBCallback( $ai, $bi++, @_ ) while ( $bi <= $lastB );
+	}
 	return 1;
 }
 
