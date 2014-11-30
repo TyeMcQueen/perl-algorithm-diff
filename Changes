@@ -2,6 +2,8 @@ Revision history for Perl module Algorithm::Diff.
 
 - Fix documentation typos (RT 84981)
   contributed by dsteinbrunner
+- add -w and -i switches to diffnew.pl (RT 69945)
+  contributed by Brian.Eschner
 
 1.19_02 2006-07-31
 - Fix typo in @EXPORT_OK (s/LCDidx/LCSidx/) (RT 8576)
