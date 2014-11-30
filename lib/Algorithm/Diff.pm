@@ -372,8 +372,8 @@ sub _withPositionsOfInInterval
 
 sub _replaceNextLargerWith
 {
-	my ( $array, $aValue ) = @_;
-	my $high = $#$array;
+	my ( $array, $aValue, $high ) = @_;
+	$high ||= $#$array;
 
 	# off the end?
 	if ( $high == -1 || $aValue > $array->[ -1 ] )
@@ -491,7 +491,7 @@ sub _longestCommonSubsequence
 				}
 				else
 				{
-					$k = _replaceNextLargerWith( $thresh, $j );
+					$k = _replaceNextLargerWith( $thresh, $j, $k );
 				}
 
 				# oddly, it's faster to always test this (CPU cache?).
