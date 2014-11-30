@@ -1483,7 +1483,7 @@ sequence A, and arrow B points to an element of the sequence B.
 Initially, the arrows point to the first elements of the respective
 sequences.  C<traverse_sequences> will advance the arrows through the
 sequences one element at a time, calling an appropriate user-specified
-callback function before each advance.  It willadvance the arrows in
+callback function before each advance.  It will advance the arrows in
 such a way that if there are equal elements C<$A[$i]> and C<$B[$j]>
 which are equal and which are part of the LCS, there will be some moment
 during the execution of C<traverse_sequences> when arrow A is pointing
