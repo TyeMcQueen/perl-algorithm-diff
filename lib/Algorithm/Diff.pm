@@ -1,6 +1,8 @@
 package Algorithm::Diff;
 use strict;
 use vars qw($VERSION @EXPORT_OK @ISA @EXPORT);
+use integer;		# see below in _replaceNextLargerWith() for mod to make
+					# if you don't use this
 require Exporter;
 @ISA = qw(Exporter);
 @EXPORT = qw();
@@ -387,6 +389,7 @@ sub _replaceNextLargerWith
 	while ( $low <= $high )
 	{
 		$index = ( $high + $low ) / 2;
+#		$index = int(( $high + $low ) / 2);		# without 'use integer'
 		$found = $array->[ $index ];
 
 		if ( $aValue == $found )
