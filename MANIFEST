@@ -8,3 +8,4 @@ t/base.t		Test script
 cdiff.pl                Context diff utility
 diff.pl                 Simple Unix diff utility written in Perl
 diffnew.pl              Full-featured Unix diff utility written in Perl
+htmldiff.pl		Sample using traverse_sequences
