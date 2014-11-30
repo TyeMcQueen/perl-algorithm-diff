@@ -350,7 +350,7 @@ sub _withPositionsOfInInterval
 		my $key = &$keyGen( $element, @_ );
 		if ( exists( $d{$key} ) )
 		{
-			push ( @{ $d{$key} }, $index );
+			unshift ( @{ $d{$key} }, $index );
 		}
 		else
 		{
@@ -482,7 +482,7 @@ sub _longestCommonSubsequence
 		if ( exists( $bMatches->{$ai} ) )
 		{
 			$k = 0;
-			for $j ( reverse( @{ $bMatches->{$ai} } ) )
+			for $j ( @{ $bMatches->{$ai} } )
 			{
 
 				# optimization: most of the time this will be true
