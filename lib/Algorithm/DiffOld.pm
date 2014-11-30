@@ -137,8 +137,8 @@ sub _replaceNextLargerWith
 # This method computes the longest common subsequence in $a and $b.
 
 # Result is array or ref, whose contents is such that
-# 	$a->[ $i ] = $b->[ $result[ $i ] ]
-# foreach $i in ( 0..scalar( @result ) if $result[ $i ] is defined.
+# 	$a->[ $i ] == $b->[ $result[ $i ] ]
+# foreach $i in ( 0 .. $#result ) if $result[ $i ] is defined.
 
 # An additional argument may be passed; this is a CODE ref to a comparison
 # routine. By default, comparisons will use "eq" .
@@ -226,7 +226,9 @@ sub traverse_sequences
 	my $compare = shift;
 	my $matchCallback = $callbacks->{'MATCH'} || sub { };
 	my $discardACallback = $callbacks->{'DISCARD_A'} || sub { };
+	my $finishedACallback = $callbacks->{'A_FINISHED'};
 	my $discardBCallback = $callbacks->{'DISCARD_B'} || sub { };
+	my $finishedBCallback = $callbacks->{'B_FINISHED'};
 	my $matchVector = _longestCommonSubsequence( $a, $b, $compare, @_ );
 	# Process all the lines in match vector
 	my $lastA = $#$a;
@@ -236,7 +238,7 @@ sub traverse_sequences
 	for ( $ai = 0; $ai <= $#$matchVector; $ai++ )
 	{
 		my $bLine = $matchVector->[ $ai ];
-		if ( defined( $bLine ) )
+		if ( defined( $bLine ) )	# matched
 		{
 			&$discardBCallback( $ai, $bi++, @_ ) while $bi < $bLine;
 			&$matchCallback( $ai, $bi++, @_ );
@@ -246,9 +248,25 @@ sub traverse_sequences
 			&$discardACallback( $ai, $bi, @_ );
 		}
 	}
+	# the last entry (if any) processed was a match.
 
-	&$discardACallback( $ai++, $bi, @_ ) while ( $ai <= $lastA );
-	&$discardBCallback( $ai, $bi++, @_ ) while ( $bi <= $lastB );
+	if ( defined( $finishedBCallback ) && $ai <= $lastA )
+	{
+		&$finishedBCallback( $bi, @_ );
+	}
+	else
+	{
+		&$discardACallback( $ai++, $bi, @_ ) while ( $ai <= $lastA );
+	}
+
+	if ( defined( $finishedACallback ) && $bi <= $lastB )
+	{
+		&$finishedACallback( $ai, @_ );
+	}
+	else
+	{
+		&$discardBCallback( $ai, $bi++, @_ ) while ( $bi <= $lastB );
+	}
 	return 1;
 }
 
