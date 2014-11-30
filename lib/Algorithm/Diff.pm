@@ -6,7 +6,7 @@ use integer;    # see below in _replaceNextLargerWith() for mod to make
 require Exporter;
 @ISA       = qw(Exporter);
 @EXPORT    = qw();
-@EXPORT_OK = qw(LCS diff traverse_sequences);
+@EXPORT_OK = qw(LCS diff traverse_sequences traverse_balanced sdiff);
 $VERSION = sprintf('%d.%02d', (q$Revision: 1.11 $ =~ /\d+/g));
 
 # McIlroy-Hunt diff algorithm
