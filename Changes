@@ -1,5 +1,6 @@
 Revision history for Perl module Algorithm::Diff.
 
+1.19_03 2014-11-25
 - Fix documentation typos (RT 84981)
   contributed by dsteinbrunner
 - add -w and -i switches to diffnew.pl (RT 69945)
