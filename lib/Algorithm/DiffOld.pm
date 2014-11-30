@@ -30,7 +30,7 @@ interface, which uses a comparison function rather than a key generating
 function.
 
 Because each of the lines in one array have to be compared with each 
-of the lines in the other array, this does M*N comparisions. This can
+of the lines in the other array, this does M*N comparisons. This can
 be very slow. I clocked it at taking 18 times as long as the stock
 version of Algorithm::Diff for a 4000-line file. It will get worse
 quadratically as array sizes increase.
