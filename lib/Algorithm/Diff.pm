@@ -435,9 +435,7 @@ sub _longestCommonSubsequence
 		and $bStart <= $bFinish
 		and &$compare( $a->[ $aStart ], $b->[ $bStart ], @_ ) )
 	{
-		$matchVector->[ $aStart ] = $bStart;
-		$aStart++;
-		$bStart++;
+		$matchVector->[ $aStart++ ] = $bStart++;
 	}
 
 	# now the end
@@ -445,9 +443,7 @@ sub _longestCommonSubsequence
 		and $bStart <= $bFinish
 		and &$compare( $a->[ $aFinish ], $b->[ $bFinish ], @_ ) )
 	{
-		$matchVector->[ $aFinish ] = $bFinish;
-		$aFinish--;
-		$bFinish--;
+		$matchVector->[ $aFinish-- ] = $bFinish--;
 	}
 
 	# Now compute the equivalence classes of positions of elements
@@ -520,8 +516,7 @@ sub traverse_sequences
 		if ( defined( $bLine ) )
 		{
 			&$discardBCallback( $ai, $bi++, @_ ) while $bi < $bLine;
-			&$matchCallback( $ai, $bi, @_ );
-			$bi++;
+			&$matchCallback( $ai, $bi++, @_ );
 		}
 		else
 		{
