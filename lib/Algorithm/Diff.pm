@@ -150,8 +150,11 @@ sub _longestCommonSubsequence
         };
     }
 
-    my ( $aStart, $aFinish, $bStart, $bFinish, $matchVector ) =
-      ( 0, $#$a, 0, $#$b, [] );
+    my ( $aStart, $aFinish, $matchVector ) = ( 0, $#$a, [] );
+    my ( $bMatches ) = ( {} );
+
+    {
+        my ( $bStart, $bFinish ) = ( 0, $#$b );
 
         # First we prune off any common elements at the beginning
         while ( $aStart <= $aFinish
@@ -170,8 +173,9 @@ sub _longestCommonSubsequence
         }
 
         # Now compute the equivalence classes of positions of elements
-        my $bMatches =
+        $bMatches =
           _withPositionsOfInInterval( $b, $bStart, $bFinish, $keyGen, @_ );
+    }
     my $thresh = [];
     my $links  = [];
 
