@@ -9,7 +9,7 @@ $VERSION = sprintf('%d.%02d', (q$Revision: 1.15 $ =~ /\d+/g));
 require Exporter;
 *import    = \&Exporter::import;
 @EXPORT_OK = qw(
-    LCS
+    prepare LCS
     diff sdiff
     traverse_sequences traverse_balanced
 );
@@ -399,10 +399,21 @@ sub traverse_balanced
     return 1;
 }
 
+sub prepare
+{
+    my $a       = shift;    # array ref
+    my $keyGen  = shift;    # code ref
+
+    # set up code ref
+    $keyGen = sub { $_[0] } unless defined($keyGen);
+
+    return scalar _withPositionsOfInInterval( $a, 0, $#$a, $keyGen, @_ );
+}
+
 sub LCS
 {
     my $a = shift;                  # array ref
-    my $b = shift;                  # array ref
+    my $b = shift;                  # array ref or hash ref
     my $matchVector = _longestCommonSubsequence( $a, $b, @_ );
     my @retval;
     my $i;
@@ -597,6 +608,33 @@ FUNCTIONS>.
 
 Additional parameters, if any, will be passed to the key generation
 routine.
+
+=head2 C<prepare>
+
+Given a reference to a list of items, C<prepare> returns a reference
+to a hash which can be used when comparing this sequence to other
+sequences with C<LCS>.
+
+    $prep = prepare( \@seq1 );
+    for $i ( 0 .. 10_000 )
+    {
+        @lcs = LCS( $prep, $seq[$i] );
+        # do something useful with @lcs
+    }
+
+C<prepare> may be passed an optional third parameter; this is a CODE
+reference to a key generation function.  See L</KEY GENERATION
+FUNCTIONS>.
+
+    $prep = prepare( \@seq1, \&keyGen );
+    for $i ( 0 .. 10_000 )
+    {
+        @lcs = LCS( $seq[$i], $prep, \&keyGen );
+        # do something useful with @lcs
+    }
+
+Using C<prepare> provides a performance gain of about 50% when calling LCS
+many times compared with not preparing.
 
 =head2 C<diff>
 
