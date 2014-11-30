@@ -19,7 +19,8 @@ Algorithm::Diff - Compute `intelligent' differences between two files / lists
 
 =head1 SYNOPSIS
 
-  use Algorithm::Diff qw(diff LCS traverse_sequences);
+  use Algorithm::Diff qw(diff sdiff LCS traverse_sequences
+                         traverse_balanced);
 
   @lcs    = LCS( \@seq1, \@seq2 );
 
@@ -32,6 +33,10 @@ Algorithm::Diff - Compute `intelligent' differences between two files / lists
   @diffs = diff( \@seq1, \@seq2 );
 
   @diffs = diff( \@seq1, \@seq2, $key_generation_function );
+
+  @sdiffs = sdiff( \@seq1, \@seq2 );
+
+  @sdiffs = sdiff( \@seq1, \@seq2, $key_generation_function );
   
   traverse_sequences( \@seq1, \@seq2,
                      { MATCH => $callback,
@@ -45,6 +50,13 @@ Algorithm::Diff - Compute `intelligent' differences between two files / lists
                        DISCARD_B => $callback,
                      },
                      $key_generation_function );
+
+  traverse_balanced( \@seq1, \@seq2,
+                     { MATCH => $callback,
+                       DISCARD_A => $callback,
+                       DISCARD_B => $callback,
+                       CHANGE    => $callback,
+                     } );
 
 =head1 INTRODUCTION
 
@@ -102,8 +114,8 @@ is C<a x b y c z>:
 =head1 USAGE
 
 This module provides three exportable functions, which we'll deal with in
-ascending order of difficulty: C<LCS>, C<diff>, and
-C<traverse_sequences>.
+ascending order of difficulty: C<LCS>, 
+C<diff>, C<sdiff>, C<traverse_sequences>, and C<traverse_balanced>.
 
 =head2 C<LCS>
 
@@ -251,7 +263,7 @@ C<traverse_sequences> will advance one of them and call the appropriate
 callback, but it is not specified which it will call.
 
 The arguments to C<traverse_sequences> are the two sequences to traverse, and a
-callback which specifies the callback functions, like this:
+hash which specifies the callback functions, like this:
 
   traverse_sequences( \@seq1, \@seq2,
                      { MATCH => $callback_1,
@@ -264,7 +276,7 @@ indices of the two arrows as their arguments.  They are not expected to return
 any values.  If a callback is omitted from the table, it is not called.
 
 Callbacks for A_FINISHED and B_FINISHED are invoked with at least the
-corresponding index in A or B,
+corresponding index in A or B.
 
 If arrow A reaches the end of its sequence, before arrow B does,
 C<traverse_sequences> will call the C<A_FINISHED> callback when it advances
