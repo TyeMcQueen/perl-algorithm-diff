@@ -14,6 +14,7 @@ BEGIN
 	$SIG{__DIE__} = sub # breakpoint on die
 	{
 		$DB::single = 1;
+		$DB::single = 1;	# avoid complaint
 		die @_;
 	}
 }
@@ -47,7 +48,7 @@ my $correctDiffResult = [
 # Result of LCS must be as long as @a
 my @result = Algorithm::Diff::_longestCommonSubsequence( \@a, \@b );
 ok( scalar(@result),
-	8,
+	scalar(@correctResult),
 	"length of _longestCommonSubsequence" );
 
 # result has b[] line#s keyed by a[] line#
