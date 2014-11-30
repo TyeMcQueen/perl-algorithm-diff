@@ -534,6 +534,252 @@ sub sdiff
     return wantarray ? @$retval : $retval;
 }
 
+########################################
+my $Root= __PACKAGE__;
+package Algorithm::Diff::_impl;
+use strict;
+
+sub _Idx()  { 0 } # $me->[_Idx]: Ref to array of hunk indices
+            # 1   # $me->[1]: Ref to first sequence
+            # 2   # $me->[2]: Ref to second sequence
+sub _End()  { 3 } # $me->[_End]: Diff between forward and reverse pos
+sub _Same() { 4 } # $me->[_Same]: 1 if pos 1 contains unchanged items
+sub _Base() { 5 } # $me->[_Base]: Added to range's min and max
+sub _Pos()  { 6 } # $me->[_Pos]: Which hunk is currently selected
+sub _Off()  { 7 } # $me->[_Off]: Offset into _Idx for current position
+sub _Min() { -2 } # Added to _Off to get min instead of max+1
+
+sub Die
+{
+    require Carp;
+    Carp::confess( @_ );
+}
+
+sub _ChkPos
+{
+    my( $me )= @_;
+    return   if  $me->[_Pos];
+    my $meth= ( caller(1) )[3];
+    Die( "Called $meth on 'reset' object" );
+}
+
+sub _ChkSeq
+{
+    my( $me, $seq )= @_;
+    return $seq + $me->[_Off]
+        if  1 == $seq  ||  2 == $seq;
+    my $meth= ( caller(1) )[3];
+    Die( "$meth: Invalid sequence number ($seq); must be 1 or 2" );
+}
+
+sub getObjPkg
+{
+    my( $us )= @_;
+    return ref $us   if  ref $us;
+    return $us . "::_obj";
+}
+
+sub new
+{
+    my( $us, $seq1, $seq2, $opts ) = @_;
+    my @args;
+    for( $opts->{keyGen} ) {
+        push @args, $_   if  $_;
+    }
+    for( $opts->{keyGenArgs} ) {
+        push @args, @$_   if  $_;
+    }
+    my $cdif= Algorithm::Diff::compact_diff( $seq1, $seq2, @args );
+    my $same= 1;
+    if(  0 == $cdif->[2]  &&  0 == $cdif->[3]  ) {
+        $same= 0;
+        splice @$cdif, 0, 2;
+    }
+    my @obj= ( $cdif, $seq1, $seq2 );
+    $obj[_End] = (1+@$cdif)/2;
+    $obj[_Same] = $same;
+    $obj[_Base] = 0;
+    my $me = bless \@obj, $us->getObjPkg();
+    $me->Reset( 0 );
+    return $me;
+}
+
+sub Reset
+{
+    my( $me, $pos )= @_;
+    $pos= int( $pos || 0 );
+    $pos += $me->[_End]
+        if  $pos < 0;
+    $pos= 0
+        if  $pos < 0  ||  $me->[_End] <= $pos;
+    $me->[_Pos]= $pos || !1;
+    $me->[_Off]= 2*$pos - 1;
+    return $me;
+}
+
+sub Base
+{
+    my( $me, $base )= @_;
+    my $oldBase= $me->[_Base];
+    $me->[_Base]= 0+$base   if  defined $base;
+    return $oldBase;
+}
+
+sub Copy
+{
+    my( $me, $pos, $base )= @_;
+    my @obj= @$me;
+    my $you= bless \@obj, ref($me);
+    $you->Reset( $pos )   if  defined $pos;
+    $you->Base( $base );
+    return $you;
+}
+
+sub Next {
+    my( $me, $steps )= @_;
+    $steps= 1   if  ! defined $steps;
+    if( $steps ) {
+        my $pos= $me->[_Pos];
+        my $new= $pos + $steps;
+        $new= 0   if  $pos  &&  $new < 0;
+        $me->Reset( $new )
+    }
+    return $me->[_Pos];
+}
+
+sub Prev {
+    my( $me, $steps )= @_;
+    $steps= 1   if  ! defined $steps;
+    my $pos= $me->Next(-$steps);
+    $pos -= $me->[_End]   if  $pos;
+    return $pos;
+}
+
+sub Diff {
+    my( $me )= @_;
+    $me->_ChkPos();
+    return 0   if  $me->[_Same] == ( 1 & $me->[_Pos] );
+    my $ret= 0;
+    my $off= $me->[_Off];
+    for my $seq ( 1, 2 ) {
+        $ret |= $seq
+            if  $me->[_Idx][ $off + $seq + _Min ]
+            <   $me->[_Idx][ $off + $seq ];
+    }
+    return $ret;
+}
+
+sub Min {
+    my( $me, $seq, $base )= @_;
+    $me->_ChkPos();
+    my $off= $me->_ChkSeq($seq);
+    $base= $me->[_Base] if !defined $base;
+    return $base + $me->[_Idx][ $off + _Min ];
+}
+
+sub Max {
+    my( $me, $seq, $base )= @_;
+    $me->_ChkPos();
+    my $off= $me->_ChkSeq($seq);
+    $base= $me->[_Base] if !defined $base;
+    return $base + $me->[_Idx][ $off ] -1;
+}
+
+sub Range {
+    my( $me, $seq, $base )= @_;
+    $me->_ChkPos();
+    my $off = $me->_ChkSeq($seq);
+    if( !wantarray ) {
+        return  $me->[_Idx][ $off ]
+            -   $me->[_Idx][ $off + _Min ];
+    }
+    $base= $me->[_Base] if !defined $base;
+    return  ( $base + $me->[_Idx][ $off + _Min ] )
+        ..  ( $base + $me->[_Idx][ $off ] - 1 );
+}
+
+sub Items {
+    my( $me, $seq )= @_;
+    $me->_ChkPos();
+    my $off = $me->_ChkSeq($seq);
+    if( !wantarray ) {
+        return  $me->[_Idx][ $off ]
+            -   $me->[_Idx][ $off + _Min ];
+    }
+    return
+        @{$me->[$seq]}[
+                $me->[_Idx][ $off + _Min ]
+            ..  ( $me->[_Idx][ $off ] - 1 )
+        ];
+}
+
+sub Same {
+    my( $me )= @_;
+    $me->_ChkPos();
+    return wantarray ? () : 0
+        if  $me->[_Same] != ( 1 & $me->[_Pos] );
+    return $me->Items(1);
+}
+
+my %getName;
+BEGIN {
+    %getName= (
+        same => \&Same,
+        diff => \&Diff,
+        base => \&Base,
+        min  => \&Min,
+        max  => \&Max,
+        range=> \&Range,
+        items=> \&Items, # same thing
+    );
+}
+
+sub Get
+{
+    my $me= shift @_;
+    $me->_ChkPos();
+    my @value;
+    for my $arg (  @_  ) {
+        for my $word (  split ' ', $arg  ) {
+            my $meth;
+            if(     $word !~ /^(-?\d+)?([a-zA-Z]+)([12])?$/
+                ||  not  $meth= $getName{ lc $2 }
+            ) {
+                Die( $Root, ", Get: Invalid request ($word)" );
+            }
+            my( $base, $name, $seq )= ( $1, $2, $3 );
+            push @value, scalar(
+                4 == length($name)
+                    ? $meth->( $me )
+                    : $meth->( $me, $seq, $base )
+            );
+        }
+    }
+    if(  wantarray  ) {
+        return @value;
+    } elsif(  1 == @value  ) {
+        return $value[0];
+    }
+    Die( 0+@value, " values requested from ",
+        $Root, "'s Get in scalar context" );
+}
+
+
+my $Obj= getObjPkg($Root);
+no strict 'refs';
+
+for my $meth (  qw( new getObjPkg )  ) {
+    *{$Root."::".$meth} = \&{$meth};
+    *{$Obj ."::".$meth} = \&{$meth};
+}
+for my $meth (  qw(
+    Next Prev Reset Copy Base Diff
+    Same Items Range Min Max Get
+    _ChkPos _ChkSeq
+)  ) {
+    *{$Obj."::".$meth} = \&{$meth};
+}
+
 1;
 __END__
 
@@ -542,6 +788,35 @@ __END__
 Algorithm::Diff - Compute `intelligent' differences between two files / lists
 
 =head1 SYNOPSIS
+
+    require Algorithm::Diff;
+
+    # This example produces traditional 'diff' output:
+
+    my $diff = Algorithm::Diff->new( \@seq1, \@seq2 );
+
+    $diff->Base( 1 );   # Return line numbers, not indices
+    while(  $diff->Next()  ) {
+        next   if  $diff->Same();
+        my $sep = '';
+        if(  ! $diff->Items(2)  ) {
+            sprintf "%d,%dd%d\n",
+                $diff->Get(qw( Min1 Max1 Max2 ));
+        } elsif(  ! $diff->Items(1)  ) {
+            sprint "%da%d,%d\n",
+                $diff->Get(qw( Max1 Min2 Max2 ));
+        } else {
+            $sep = "---\n";
+            sprintf "%d,%dc%d,%d\n",
+                $diff->Get(qw( Min1 Max1 Min2 Max2 ));
+        }
+        print "< $_"   for  $diff->Items(1);
+        print $sep;
+        print "> $_"   for  $diff->Items(2);
+    }
+
+
+    # Alternate interfaces:
 
     use Algorithm::Diff qw(
         LCS LCS_length LCSidx
@@ -553,6 +828,9 @@ Algorithm::Diff - Compute `intelligent' differences between two files / lists
     $count  = LCS_length( \@seq1, \@seq2 );
 
     ( $seq1idxref, $seq2idxref ) = LCSidx( \@seq1, \@seq2 );
+
+
+    # Complicated interfaces:
 
     @diffs  = diff( \@seq1, \@seq2 );
 
@@ -690,6 +968,255 @@ Therefore, the following three lists will contain the same values:
     my @list2 = @seq2[ @$idx2 ];
     my @list3 = LCS( \@seq1, \@seq2 );
 
+=head2 C<new>
+
+    $diff = Algorithm::Diffs->new( \@seq1, \@seq2 );
+    $diff = Algorithm::Diffs->new( \@seq1, \@seq2, \%opts );
+
+C<new> computes the smallest set of additions and deletions necessary
+to turn the first sequence into the second and compactly records them
+in the object.
+
+You use the object to iterate over I<hunks>, where each hunk represents
+a contiguous section of items which should be added, deleted, replaced,
+or left unchanged.
+
+=over 4
+
+The following summary of all of the methods looks a lot like Perl code
+but some of the symbols have different meanings:
+
+    [ ]     Encloses optional arguments
+    :       Is followed by the default value for an optional argument
+    |       Separates alternate return results
+
+Method summary:
+
+    $obj        = Algorithm::Diff->new( \@seq1, \@seq2, [ \%opts ] );
+    $pos        = $obj->Next(  [ $count : 1 ] );
+    $revPos     = $obj->Prev(  [ $count : 1 ] );
+    $obj        = $obj->Reset( [ $pos : 0 ] );
+    $copy       = $obj->Copy(  [ $pos, [ $newBase ] ] );
+    $oldBase    = $obj->Base(  [ $newBase ] );
+
+Note that all of the following methods C<die> if used on an object that
+is "reset" (not currently pointing at any hunk).
+
+    $bits       = $obj->Diff(  );
+    @items|$cnt = $obj->Same(  );
+    @items|$cnt = $obj->Items( $seqNum );
+    @idxs |$cnt = $obj->Range( $seqNum, [ $base ] );
+    $minIdx     = $obj->Min(   $seqNum, [ $base ] );
+    $maxIdx     = $obj->Max(   $seqNum, [ $base ] );
+    @values     = $obj->Get(   @names );
+
+Passing in C<undef> for an optional argument is always treated the same
+as if no argument were passed in.
+
+=item C<Next>
+
+    $pos = $diff->Next();    # Move forward 1 hunk
+    $pos = $diff->Next( 2 ); # Move forward 2 hunks
+    $pos = $diff->Next(-5);  # Move backward 5 hunks
+
+C<Next> moves the object to point at the next hunk.  The object starts
+out "reset", which means it isn't pointing at any hunk.  If the object
+is reset, then C<Next()> moves to the first hunk.
+
+C<Next> returns a true value iff the move didn't go past the last hunk.
+So C<Next(0)> will return true iff the object is not reset.
+
+Actually, C<Next> returns the object's new position, which is a number
+between 1 and the number of hunks (inclusive), or returns a false value.
+
+=item C<Prev>
+
+C<Prev($N)> is almost identical to C<Next(-$N)>; it moves to the $Nth
+previous hunk.  On a 'reset' object, C<Prev()> [and C<Next(-1)>] move
+to the last hunk.
+
+The position returned by C<Prev> is relative to the I<end> of the
+hunks; -1 for the last hunk, -2 for the second-to-last, etc.
+
+=item C<Reset>
+
+    $diff->Reset();     # Reset the object's position
+    $diff->Reset($pos); # Move to the specified hunk
+    $diff->Reset(1);    # Move to the first hunk
+    $diff->Reset(-1);   # Move to the last hunk
+
+C<Reset> returns the object, so, for example, you could use
+C<< $diff->Reset()->Next(-1) >> to get the number of hunks.
+
+=item C<Copy>
+
+    $copy = $diff->Copy( $newPos, $newBase );
+
+C<Copy> returns a copy of the object.  The copy and the orignal object
+share most of their data, so making copies takes very little memory.
+The copy maintains its own position (separate from the original), which
+is the main purpose of copies.  It also maintains its own base.
+
+By default, the copy's position starts out the same as the original
+object's position.  But C<Copy> takes an optional first argument to set the
+new position, so the following three snippets are equivalent:
+
+    $copy = $diff->Copy($pos);
+
+    $copy = $diff->Copy();
+    $copy->Reset($pos);
+
+    $copy = $diff->Copy()->Reset($pos);
+
+C<Copy> takes an optional second argument to set the base for
+the copy.  If you wish to change the base of the copy but leave
+the position the same as in the original, here are two
+equivalent ways:
+
+    $copy = $diff->Copy();
+    $copy->Base( 0 );
+
+    $copy = $diff->Copy(undef,0);
+
+Here are two equivalent way to get a "reset" copy:
+
+    $copy = $diff->Copy(0);
+
+    $copy = $diff->Copy()->Reset();
+
+=item C<Diff>
+
+    $bits = $obj->Diff();
+
+C<Diff> returns a true value iff the current hunk contains items that are
+different between the two sequences.  It actually returns one of the
+follow 4 values:
+
+=over 4
+
+=item 3
+
+C<3==(1|2)>.  This hunk contains items from @seq1 and the items
+from @seq2 that should replace them.  Both sequence 1 and 2
+contain changed items so both the 1 and 2 bits are set.
+
+=item 2
+
+This hunk only contains items from @seq2 that should be inserted (not
+items from @seq1).  Only sequence 2 contains changed items so only the 2
+bit is set.
+
+=item 1
+
+This hunk only contains items from @seq1 that should be deleted (not
+items from @seq2).  Only sequence 1 contains changed items so only the 1
+bit is set.
+
+=item 0
+
+This means that the items in this hunk are the same in both sequences.
+Neither sequence 1 nor 2 contain changed items so neither the 1 nor the
+2 bits are set.
+
+=back
+
+=item C<Same>
+
+C<Same> returns a true value iff the current hunk contains items that
+are the same in both sequences.  It actually returns the list of items
+if they are the same or an emty list if they aren't.  In a scalar
+context, it returns the size of the list.
+
+=item C<Items>
+
+    $count = $diff->Items(2);
+    @items = $diff->Items($seqNum);
+
+C<Items> returns the (number of) items from the specified sequence that
+are part of the current hunk.
+
+If the current hunk contains only insertions, then
+C<< $diff->Items(1) >> will return an empty list (0 in a scalar conext).
+If the current hunk contains only deletions, then C<< $diff->Items(2) >>
+will return an empty list (0 in a scalar conext).
+
+If the hunk contains replacements, then both C<< $diff->Items(1) >> and
+C<< $diff->Items(2) >> will return different, non-empty lists.
+
+Otherwise, the hunk contains identical items and all of the following
+will return the same lists:
+
+    @items = $diff->Items(1);
+    @items = $diff->Items(2);
+    @items = $diff->Same();
+
+=item C<Range>
+
+    $count = $diff->Range( $seqNum );
+    @indices = $diff->Range( $seqNum );
+    @indices = $diff->Range( $seqNum, $base );
+
+C<Range> is like C<Items> except that it returns a list of I<indices> to
+the items rather than the items themselves.  By default, the index of
+the first item (in each sequence) is 0 but this can be changed by
+calling the C<Base> method.  So, by default, the following two snippets
+return the same lists:
+
+    @list = $diff->Items(2);
+    @list = @seq2[ $diff->Range(2) ];
+
+You can also specify the base to use as the second argument.  So the
+following two snippets I<always> return the same lists:
+
+    @list = $diff->Items(1);
+    @list = @seq1[ $diff->Range(1,0) ];
+
+=item C<Base>
+
+    $curBase = $diff->Base();
+    $oldBase = $diff->Base($newBase);
+
+C<Base> sets and/or returns the current base (usually 0 or 1) that is
+used when you request range information.  The base defaults to 0 so
+that range information is returned as array indices.  You can set the
+base to 1 if you want to report traditional line numbers instead.
+
+=item C<Min>
+
+    $min1 = $diff->Min(1);
+    $min = $diff->Min( $seqNum, $base );
+
+C<Min> returns the first value that C<Range> would return (given the
+same arguments) or returns C<undef> if C<Range> would return an empty
+list.
+
+=item C<Max>
+
+C<Max> returns the last value that C<Range> would return or C<undef>.
+
+=item C<Get>
+
+    ( $n, $x, $r ) = $diff->Get(qw( min1 max1 range1 ));
+    @values = $diff->Get(qw( 0min2 1max2 range2 same base ));
+
+C<Get> returns one or more scalar values.  You pass in a list of the
+names of the values you want returned.  Each name must match one of the
+following regexes:
+
+    /^(-?\d+)?(min|max)[12]$/i
+    /^(range[12]|same|diff|base)$/i
+
+The 1 or 2 after a name says which sequence you want the information
+for (and where allowed, it is required).  The optional number before
+"min" or "max" is the base to use.  So the following equalities hold:
+
+    $diff->Get('min1') == $diff->Min(1)
+    $diff->Get('0min2') == $diff->Min(2,0)
+
+Using C<Get> in a scalar context when you've passed in more than one
+name is a fatal error (C<die> is called).
+
+=back
 
 =head2 C<prepare>
 
