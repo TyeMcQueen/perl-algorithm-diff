@@ -223,11 +223,11 @@ sub traverse_sequences
 	my $a = shift;	# array ref
 	my $b = shift;	# array ref
 	my $callbacks = shift || { };
-	my $keyGen = shift;
+	my $compare = shift;
 	my $matchCallback = $callbacks->{'MATCH'} || sub { };
 	my $discardACallback = $callbacks->{'DISCARD_A'} || sub { };
 	my $discardBCallback = $callbacks->{'DISCARD_B'} || sub { };
-	my $matchVector = _longestCommonSubsequence( $a, $b, $keyGen, @_ );
+	my $matchVector = _longestCommonSubsequence( $a, $b, $compare, @_ );
 	# Process all the lines in match vector
 	my $lastA = $#$a;
 	my $lastB = $#$b;
