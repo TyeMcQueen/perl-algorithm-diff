@@ -388,7 +388,12 @@ sub _replaceNextLargerWith
 	{
 		$index = ( $high + $low ) / 2;
 		$found = $array->[ $index ];
-		if ( $aValue > $found )
+
+		if ( $aValue == $found )
+		{
+			return undef;
+		}
+		elsif ( $aValue > $found )
 		{
 			$low = $index + 1;
 		}
@@ -399,7 +404,6 @@ sub _replaceNextLargerWith
 	}
 
 	# now insertion point is in $low.
-	return undef if $array->[ $low ] == $aValue;	# same?
 	$array->[ $low ] = $aValue;		# overwrite next larger
 	return $low;
 }
