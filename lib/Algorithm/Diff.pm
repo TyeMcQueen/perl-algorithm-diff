@@ -317,6 +317,9 @@ This code was adapted from the Smalltalk code of
 Mario Wolczko <mario@wolczko.com>, which is available at
 ftp://st.cs.uiuc.edu/pub/Smalltalk/MANCHESTER/manchester/4.0/diff.st
 
+C<sdiff> and C<traverse_balanced> were written by Mike Schilli
+<m@perlmeister.com>.
+
 The algorithm is that described in 
 I<A Fast Algorithm for Computing Longest Common Subsequences>,
 CACM, vol.20, no.5, pp.350-353, May 1977, with a few

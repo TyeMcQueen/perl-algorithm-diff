@@ -78,6 +78,10 @@ Thanks to Mario Wolczko <mario@wolczko.com> for writing and making
 publicly available his Smalltalk version of diff, which this Perl
 version is heavily based on.
 
+Thanks to Mike Schilli <m@perlmeister.com> for writing sdiff and
+traverse_balanced and making them available for the Algorithm::Diff
+distribution.
+
 (From Mark-Jason Dominus' earlier versions):
 
 Huge thanks to Amir Karger for adding full context diff supprt to
