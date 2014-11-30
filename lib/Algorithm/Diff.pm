@@ -925,9 +925,11 @@ or
 (See also the README file and several example
 scripts include with this module.)
 
-This module provides three exportable functions, which we'll
-deal with in ascending order of difficulty: C<LCS>,
-C<diff>, C<sdiff>,
+This module now provides an object-oriented interface that uses less
+memory and is easier to use than most of the previous procedural
+interfaces.  It also still provides several exportable functions.  We'll
+deal with these in ascending order of difficulty:  C<LCS>,
+C<LCS_length>, C<LCSidx>, OO interface, C<prepare>, C<diff>, C<sdiff>,
 C<traverse_sequences>, and C<traverse_balanced>.
 
 =head2 C<LCS>
@@ -1469,8 +1471,9 @@ the last items in each sequence.
 
 =head2 C<traverse_sequences>
 
-C<traverse_sequences> is the most general facility provided by
-this module; C<diff> and C<LCS> are implemented as calls to it.
+C<traverse_sequences> used to be the most general facility provided by
+this module (the new OO interface is more powerful and much easier to
+use).
 
 Imagine that there are two arrows.  Arrow A points to an element of
 sequence A, and arrow B points to an element of the sequence B. 
