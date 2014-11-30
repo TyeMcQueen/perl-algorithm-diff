@@ -278,6 +278,40 @@ CODE reference to a key generation function.  See L</KEY GENERATION FUNCTIONS>.
 
 Additional parameters, if any, will be passed to the key generation function.
 
+=head2 C<traverse_balanced>
+
+C<traverse_balanced> is an alternative to C<traverse_sequences>. It
+uses a different algorithm to iterate through the entries in the
+computed LCS. Instead of sticking to one side and showing element changes
+as insertions and deletions only, it will jump back and forth between
+the two sequences and report I<changes> occurring as deletions on one
+side followed immediatly by an insertion on the other side.
+
+In addition to the 
+C<DISCARD_A>,
+C<DISCARD_B>, and
+C<MATCH>
+callbacks supported by C<traverse_sequences>, C<traverse_balanced> supports
+a C<CHANGE> callback indicating that one element got C<replaced> by another:
+
+  traverse_sequences( \@seq1, \@seq2,
+                     { MATCH => $callback_1,
+                       DISCARD_A => $callback_2,
+                       DISCARD_B => $callback_3,
+                       CHANGE    => $callback_4,
+                     } );
+
+If no C<CHANGE> callback is specified, C<traverse_balanced>
+will map C<CHANGE> events to C<DISCARD_A> and C<DISCARD_B> actions,
+therefore resulting in a similar behaviour as C<traverse_sequences>
+with different order of events.
+
+C<traverse_balanced> might be a bit slower than C<traverse_sequences>,
+noticable only while processing huge amounts of data.
+
+The C<sdiff> function of this module 
+is implemented as call to C<traverse_balanced>.
+
 =head1 KEY GENERATION FUNCTIONS
 
 C<diff>, C<LCS>, and C<traverse_sequences> accept an optional last parameter.
