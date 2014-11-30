@@ -590,6 +590,101 @@ sub traverse_sequences
 	return 1;
 }
 
+sub traverse_balanced
+{
+	my $a                 = shift;                                  # array ref
+	my $b                 = shift;                                  # array ref
+	my $callbacks         = shift || {};
+	my $keyGen            = shift;
+	my $matchCallback     = $callbacks->{'MATCH'} || sub { };
+	my $discardACallback  = $callbacks->{'DISCARD_A'} || sub { };
+	my $discardBCallback  = $callbacks->{'DISCARD_B'} || sub { };
+	my $changeCallback    = $callbacks->{'CHANGE'};
+	my $matchVector = _longestCommonSubsequence( $a, $b, $keyGen, @_ );
+
+	# Process all the lines in match vector
+	my $lastA = $#$a;
+	my $lastB = $#$b;
+	my $bi    = 0;
+	my $ai    = 0;
+	my $ma    = -1;
+	my $mb;
+
+	while (1)
+	{
+
+		# Find next match indices $ma and $mb
+		do { $ma++ } while ( $ma <= $#$matchVector && !defined $matchVector->[$ma] );
+
+		last if $ma > $#$matchVector;    # end of matchVector?
+		$mb = $matchVector->[$ma];
+
+		# Proceed with discard a/b or change events until
+		# next match
+		while ( $ai < $ma || $bi < $mb )
+		{
+
+			if ( $ai < $ma && $bi < $mb )
+			{
+
+				# Change
+				if ( defined $changeCallback )
+				{
+					&$changeCallback( $ai++, $bi++, @_ );
+				}
+				else
+				{
+					&$discardACallback( $ai++, $bi, @_ );
+					&$discardBCallback( $ai, $bi++, @_ );
+				}
+			}
+			elsif ( $ai < $ma )
+			{
+				&$discardACallback( $ai++, $bi, @_ );
+			}
+			else
+			{
+
+				# $bi < $mb
+				&$discardBCallback( $ai, $bi++, @_ );
+			}
+		}
+
+		# Match
+		&$matchCallback( $ai++, $bi++, @_ );
+	}
+
+	while ( $ai <= $lastA || $bi <= $lastB )
+	{
+		if ( $ai <= $lastA && $bi <= $lastB )
+		{
+
+			# Change
+			if ( defined $changeCallback )
+			{
+				&$changeCallback( $ai++, $bi++, @_ );
+			}
+			else
+			{
+				&$discardACallback( $ai++, $bi, @_ );
+				&$discardBCallback( $ai, $bi++, @_ );
+			}
+		}
+		elsif ( $ai <= $lastA )
+		{
+			&$discardACallback( $ai++, $bi, @_ );
+		}
+		else
+		{
+
+			# $bi <= $lastB
+			&$discardBCallback( $ai, $bi++, @_ );
+		}
+	}
+
+	return 1;
+}
+
 sub LCS
 {
 	my $a = shift;                                           # array ref
@@ -618,6 +713,33 @@ sub diff
 	traverse_sequences( $a, $b,
 		{ MATCH => $match, DISCARD_A => $discard, DISCARD_B => $add }, @_ );
 	&$match();
+	return wantarray ? @$retval : $retval;
+}
+
+sub sdiff
+{
+	my $a      = shift;    # array ref
+	my $b      = shift;    # array ref
+	my $retval = [];
+	my $discard = sub { push ( @$retval, [ '-', $a->[ $_[0] ], "" ] ) };
+	my $add = sub { push ( @$retval, [ '+', "", $b->[ $_[1] ] ] ) };
+	my $change = sub {
+		push ( @$retval, [ 'c', $a->[ $_[0] ], $b->[ $_[1] ] ] );
+	};
+	my $match = sub {
+		push ( @$retval, [ 'u', $a->[ $_[0] ], $b->[ $_[1] ] ] );
+	};
+	traverse_balanced(
+		$a,
+		$b,
+		{
+			MATCH     => $match,
+			DISCARD_A => $discard,
+			DISCARD_B => $add,
+			CHANGE    => $change,
+		},
+		@_
+	);
 	return wantarray ? @$retval : $retval;
 }
 
